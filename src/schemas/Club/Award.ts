@@ -1,0 +1,29 @@
+import { Document, Schema, Model, model } from "mongoose";
+import { ObjectID } from "bson";
+
+/**
+ * @description User 요구 데이터
+ */
+export interface IAward {
+	club: ObjectID;
+	title: string;
+	subtitle: string;
+	level: string;
+}
+/**
+ * @description User 스키마에 대한 메서드 ( 레코드 )
+ */
+export interface IAwardSchema extends IAward, Document {}
+/**
+ * @description User 모델에 대한 정적 메서드 ( 테이블 )
+ */
+export interface IAwardModel extends Model<IAwardSchema> {}
+
+const AwardSchema: Schema = new Schema({
+	club: { type: ObjectID, required: true },
+	title: { type: String, default: "" },
+	subtitle: { type: String, default: "" },
+	level: { type: String, default: "" }
+});
+
+export default model<IAwardSchema>("Award", AwardSchema) as IAwardModel;

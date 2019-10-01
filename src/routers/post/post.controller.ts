@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { IUserSchema } from "../../schemas/User";
-import Post, { IPost, IPostSchema } from "../../schemas/Post";
+import Post, { IPost, IPostSchema } from "../../schemas/Club/Post";
 import SendRule, { StatusError, HTTPRequestCode } from "../../modules/Send-Rule";
 import * as fs from "fs";
 import Base64ToImage from "../../modules/Base64-To-Image";

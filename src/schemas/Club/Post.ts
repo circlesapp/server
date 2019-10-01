@@ -1,6 +1,6 @@
 import { Document, Schema, Model, model } from "mongoose";
 import { ObjectID } from "bson";
-import { IUserSchema } from "./User";
+import { IUserSchema } from "../User";
 
 import * as moment from "moment";
 import "moment-timezone";
@@ -11,7 +11,8 @@ moment.locale("ko");
  * @description Post 요구 데이터
  */
 export interface IPost {
-	owner?: ObjectID;
+	club: ObjectID;
+	owner: ObjectID;
 	title: string;
 	content: string;
 	imgPath?: string[];
@@ -75,6 +76,7 @@ export interface IPostModel extends Model<IPostSchema> {
 }
 
 const PostSchema: Schema = new Schema({
+	club: { type: ObjectID, required: true },
 	owner: { type: ObjectID, required: true },
 	title: { type: String, required: true },
 	content: { type: String, required: true },

@@ -1,7 +1,8 @@
-import { Document, Schema, Model, model, DocumentQuery } from "mongoose";
+import { Document, Schema, Model, model } from "mongoose";
 import * as crypto from "crypto";
 import * as jwt from "jwt-simple";
 import { StatusError, HTTPRequestCode } from "../modules/Send-Rule";
+import { ObjectID } from "bson";
 
 export interface PasswordAndSalt {
 	password: string;
@@ -11,6 +12,7 @@ export interface PasswordAndSalt {
  * @description User 요구 데이터
  */
 export interface IUser {
+	club: ObjectID[];
 	email: string;
 	password: string;
 	imgPath: string;
@@ -103,6 +105,7 @@ export interface IUserModel extends Model<IUserSchema> {
 }
 
 const UserSchema: Schema = new Schema({
+	clubs: { type: Array, required: true },
 	email: { type: String, required: true, unique: true },
 	password: { type: String, required: true },
 	nickname: { type: String, default: "" },
