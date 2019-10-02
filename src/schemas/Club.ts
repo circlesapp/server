@@ -4,38 +4,38 @@ import Budget, { IBudgetSchema, IBudget } from "./Club/Budget";
 import Award, { IAwardSchema, IAward } from "./Club/Award";
 
 export enum Permission {
-	ACCESS_POST_CREATE,
-	ACCESS_POST_READ,
-	ACCESS_POST_DELETE,
+	ACCESS_POST_CREATE, // 글 생성 권한
+	ACCESS_POST_READ, // 글 읽기 권한
+	ACCESS_POST_DELETE, // 글 삭제 권한
 
-	ACCESS_AWARDS_CREATE,
-	ACCESS_AWARDS_READ,
-	ACCESS_AWARDS_DELETE,
+	ACCESS_AWARDS_CREATE, // 수상 생성 권한
+	ACCESS_AWARDS_READ, // 수상 읽기 권한
+	ACCESS_AWARDS_DELETE, // 수상 삭제 권한
 
-	ACCESS_BUDGETS_CREATE,
-	ACCESS_BUDGETS_READ,
-	ACCESS_BUDGETS_DELETE
+	ACCESS_BUDGETS_CREATE, // 에산서 생성 권한
+	ACCESS_BUDGETS_READ, // 예산서 읽기 권한
+	ACCESS_BUDGETS_DELETE // 예산서 삭제 권한
 }
 export interface Member {
-	user: ObjectID;
-	rank: symbol;
+	user: ObjectID; // 유저 아이디
+	rank: symbol; // 랭크 심볼 key
 }
 export interface Rank {
-	key: symbol;
-	name: string;
-	isAdmin?: boolean;
-	permission: Permission[];
+	key: symbol; // 랭크 심볼 key
+	name: string; // 랭크 이름
+	isAdmin?: boolean; // 어드민 권한
+	permission: Permission[]; // 권한들
 }
 /**
  * @description User 요구 데이터
  */
 export interface IClub {
-	name: string;
-	members: Member[];
-	ranks: Rank[];
-	applicant: ObjectID[];
-	budgets: ObjectID[];
-	awards: ObjectID[];
+	name: string; // 동아리 이름
+	members: Member[]; // 동아리 회원
+	ranks: Rank[]; // 동아리 계급들
+	applicant: ObjectID[]; // 지원자들
+	budgets: ObjectID[]; // 예산서들
+	awards: ObjectID[]; // 수상자들
 }
 /**
  * @description User 스키마에 대한 메서드 ( 레코드 )

@@ -9,10 +9,10 @@ moment.tz.setDefault("Asia/Seoul");
 moment.locale("ko");
 
 export interface Alarm {
-	tag: string;
-	message: string;
-	createAt: Date;
-	timeString?: String;
+	url: string; // 알람 링크
+	message: string; // 알람 메세지
+	createAt: Date; // 생성일
+	timeString?: String; // 시간 비교
 }
 export interface PasswordAndSalt {
 	password: string;
@@ -22,15 +22,14 @@ export interface PasswordAndSalt {
  * @description User 요구 데이터
  */
 export interface IUser {
-	club: ObjectID[];
-	email: string;
-	alarms: Alarm[];
-	password: string;
-	imgPath: string;
-	nickname?: string;
-	lastLogin?: Date;
-	createAt?: Date;
-	salt?: string;
+	club: ObjectID[]; // 소속 동아리
+	email: string; // 이메일
+	alarms: Alarm[]; // 알람 스택
+	password: string; // 비밀번호
+	imgPath: string; // 프로필 사진
+	lastLogin?: Date; // 마지막 로그인 시간
+	createAt?: Date; // 생성일
+	salt?: string; // 암호화 키
 }
 export interface IUserChangePassword extends IUser {
 	newPassword: string;
@@ -171,6 +170,11 @@ UserSchema.methods.getAlarm = function(this: IUserSchema): Alarm[] {
 UserSchema.methods.pushAlarm = function(this: IUserSchema, alarm: Alarm): Promise<IUserSchema> {
 	return new Promise<IUserSchema>((resolve, reject) => {
 		this.alarms.unshift(alarm);
+		this.save()
+			.then(user => {
+				resolve(user);
+			})
+			.catch(err => reject(err));
 	});
 };
 

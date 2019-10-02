@@ -6,7 +6,7 @@ import Club, { IClubSchema } from "../Club";
  * @description User 요구 데이터
  */
 export interface IBudget {
-	club: ObjectID;
+	club: ObjectID; // 소속 동아리 
 	item: string; // 물건 이름
 	size: string; // 규격
 	price: number; // 가격

@@ -15,6 +15,7 @@ export interface IPost {
 	owner: ObjectID;
 	title: string;
 	content: string;
+	isPublic: boolean;
 	imgPath?: string[];
 	createAt?: Date;
 	timeString?: String;
@@ -82,6 +83,7 @@ const PostSchema: Schema = new Schema({
 	title: { type: String, required: true },
 	content: { type: String, required: true },
 	imgPath: { type: Array, default: [] },
+	isPublic: { type: Boolean, default: false },
 	createAt: { type: Date, default: Date.now },
 	timeString: { type: String }
 });
