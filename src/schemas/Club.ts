@@ -2,6 +2,7 @@ import { Document, Schema, Model, model } from "mongoose";
 import { ObjectID } from "bson";
 import Budget, { IBudgetSchema, IBudget } from "./Club/Budget";
 import Award, { IAwardSchema, IAward } from "./Club/Award";
+import Applicant, { IApplicantSchema, IApplicant } from "./Club/Applicant";
 
 export enum Permission {
 	ACCESS_POST_CREATE, // 글 생성 권한
@@ -33,9 +34,10 @@ export interface IClub {
 	name: string; // 동아리 이름
 	members: Member[]; // 동아리 회원
 	ranks: Rank[]; // 동아리 계급들
-	applicant: ObjectID[]; // 지원자들
+	applicants: ObjectID[]; // 지원자들
 	budgets: ObjectID[]; // 예산서들
 	awards: ObjectID[]; // 수상자들
+	createAt: Date;
 }
 /**
  * @description User 스키마에 대한 메서드 ( 레코드 )
@@ -45,6 +47,7 @@ export interface IClubSchema extends IClub, Document {
 	createAward(data: IAward): Promise<IClubSchema>;
 	removeBudget(budget: IBudgetSchema): Promise<IClubSchema>;
 	removeAward(award: IAwardSchema): Promise<IClubSchema>;
+	removeApplicant(award: IApplicantSchema): Promise<IClubSchema>;
 }
 /**
  * @description User 모델에 대한 정적 메서드 ( 테이블 )
@@ -78,9 +81,12 @@ export interface IClubModel extends Model<IClubSchema> {
 
 const ClubSchema: Schema = new Schema({
 	name: { type: String, required: true, unique: true },
+	ranks: { type: Array, default: [] },
+	applicants: { type: Array, default: [] },
 	members: { type: Array, default: [] },
 	awards: { type: Array, default: [] },
-	budgets: { type: Array, default: [] }
+	budgets: { type: Array, default: [] },
+	createAt: { type: Date, default: Date.now }
 });
 
 ClubSchema.methods.createBudget = function(this: IClubSchema, data: IBudget): Promise<IClubSchema> {
@@ -117,6 +123,23 @@ ClubSchema.methods.createAward = function(this: IClubSchema, data: IAward): Prom
 			.catch(err => reject(err));
 	});
 };
+ClubSchema.methods.createApplicant = function(this: IClubSchema, data: IApplicant): Promise<IClubSchema> {
+	return new Promise<IClubSchema>((resolve, reject) => {
+		data.club = this._id;
+		let applicant = new Applicant(data);
+		applicant
+			.save()
+			.then(applicant => {
+				this.applicants.push(applicant._id);
+				this.save()
+					.then(applicant => {
+						resolve(applicant);
+					})
+					.catch(err => reject(err));
+			})
+			.catch(err => reject(err));
+	});
+};
 
 ClubSchema.methods.removeBudget = function(this: IClubSchema, budget: IBudgetSchema): Promise<IClubSchema> {
 	return new Promise<IClubSchema>((resolve, reject) => {
@@ -139,7 +162,7 @@ ClubSchema.methods.removeBudget = function(this: IClubSchema, budget: IBudgetSch
 };
 ClubSchema.methods.removeAward = function(this: IClubSchema, award: IAwardSchema): Promise<IClubSchema> {
 	return new Promise<IClubSchema>((resolve, reject) => {
-		let idx = this.budgets.findIndex(x => {
+		let idx = this.awards.findIndex(x => {
 			award._id.equals(x);
 		});
 		if (idx != -1) {
@@ -148,6 +171,25 @@ ClubSchema.methods.removeAward = function(this: IClubSchema, award: IAwardSchema
 		this.save()
 			.then(club => {
 				award
+					.remove(() => {
+						resolve(club);
+					})
+					.catch(err => reject(err));
+			})
+			.catch(err => reject(err));
+	});
+};
+ClubSchema.methods.removeApplicant = function(this: IClubSchema, applicant: IApplicantSchema): Promise<IClubSchema> {
+	return new Promise<IClubSchema>((resolve, reject) => {
+		let idx = this.applicants.findIndex(x => {
+			applicant._id.equals(x);
+		});
+		if (idx != -1) {
+			this.applicants.splice(idx, 1);
+		}
+		this.save()
+			.then(club => {
+				applicant
 					.remove(() => {
 						resolve(club);
 					})
