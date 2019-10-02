@@ -1,11 +1,14 @@
 import { Document, Schema, Model, model } from "mongoose";
 import { ObjectID } from "bson";
+import { IBudgetSchema } from "./Club/Budget";
+import { IAwardSchema } from "./Club/Award";
 
 /**
  * @description User 요구 데이터
  */
 export interface IClub {
 	name: string;
+	owner: ObjectID;
 	members: ObjectID[];
 	budgets: ObjectID[];
 	awards: ObjectID[];
@@ -13,7 +16,10 @@ export interface IClub {
 /**
  * @description User 스키마에 대한 메서드 ( 레코드 )
  */
-export interface IClubSchema extends IClub, Document {}
+export interface IClubSchema extends IClub, Document {
+	removeBudget(budget: IBudgetSchema): Promise<IClubSchema>;
+	removeAward(award: IAwardSchema): Promise<IClubSchema>;
+}
 /**
  * @description User 모델에 대한 정적 메서드 ( 테이블 )
  */
@@ -44,6 +50,37 @@ const ClubSchema: Schema = new Schema({
 	awards: { type: Array, default: [] },
 	budgets: { type: Array, default: [] }
 });
+
+ClubSchema.methods.removeBudget = function(this: IClubSchema, budget: IBudgetSchema): Promise<IClubSchema> {
+	return new Promise<IClubSchema>((resolve, reject) => {
+		let idx = this.budgets.findIndex(x => {
+			budget._id.equals(x);
+		});
+		if (idx != -1) {
+			this.budgets.splice(idx, 1);
+		}
+		this.save()
+			.then(club => {
+				resolve(club);
+			})
+			.catch(err => reject(err));
+	});
+};
+ClubSchema.methods.removeAward = function(this: IClubSchema, award: IAwardSchema): Promise<IClubSchema> {
+	return new Promise<IClubSchema>((resolve, reject) => {
+		let idx = this.budgets.findIndex(x => {
+			award._id.equals(x);
+		});
+		if (idx != -1) {
+			this.awards.splice(idx, 1);
+		}
+		this.save()
+			.then(club => {
+				resolve(club);
+			})
+			.catch(err => reject(err));
+	});
+};
 
 ClubSchema.statics.createClub = function(this: IClubModel, data: IClub): Promise<IClubSchema> {
 	return new Promise<IClubSchema>((resolve, reject) => {});
