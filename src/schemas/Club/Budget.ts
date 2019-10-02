@@ -1,5 +1,6 @@
 import { Document, Schema, Model, model } from "mongoose";
 import { ObjectID } from "bson";
+import Club, { IClubSchema } from "../Club";
 
 /**
  * @description User 요구 데이터
@@ -16,7 +17,9 @@ export interface IBudget {
 /**
  * @description User 스키마에 대한 메서드 ( 레코드 )
  */
-export interface IBudgetSchema extends IBudget, Document {}
+export interface IBudgetSchema extends IBudget, Document {
+	removeThis(): Promise<IClubSchema>;
+}
 /**
  * @description User 모델에 대한 정적 메서드 ( 테이블 )
  */
@@ -31,5 +34,19 @@ const IBudgetSchema: Schema = new Schema({
 	quantity: { type: Number, default: "" },
 	shipping: { type: Number, default: "" }
 });
+
+IBudgetSchema.methods.removeThis = function(this: IBudgetSchema): Promise<IClubSchema> {
+	return new Promise<IClubSchema>((resolve, reject) => {
+		Club.findByID(this.club)
+			.then(club => {
+				club.removeBudget(this)
+					.then(club => {
+						resolve(club);
+					})
+					.catch(err => reject(err));
+			})
+			.catch(err => reject(err));
+	});
+};
 
 export default model<IBudgetSchema>("Budget", IBudgetSchema) as IBudgetModel;

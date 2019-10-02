@@ -3,7 +3,17 @@ import * as crypto from "crypto";
 import * as jwt from "jwt-simple";
 import { StatusError, HTTPRequestCode } from "../modules/Send-Rule";
 import { ObjectID } from "bson";
+import * as moment from "moment";
+import "moment-timezone";
+moment.tz.setDefault("Asia/Seoul");
+moment.locale("ko");
 
+export interface Alarm {
+	tag: string;
+	message: string;
+	createAt: Date;
+	timeString?: String;
+}
 export interface PasswordAndSalt {
 	password: string;
 	salt: string;
@@ -14,6 +24,7 @@ export interface PasswordAndSalt {
 export interface IUser {
 	club: ObjectID[];
 	email: string;
+	alarms: Alarm[];
 	password: string;
 	imgPath: string;
 	nickname?: string;
@@ -55,6 +66,8 @@ export interface IUserSchema extends IUser, Document {
 	 * @returns {Promise<IUserSchema>} 작업이 완료 된 후 그 유저를 반환합니다.
 	 */
 	updateLoginTime(): Promise<IUserSchema>;
+	getAlarm(): Alarm[];
+	pushAlarm(alarm: Alarm): Promise<IUserSchema>;
 }
 /**
  * @description User 모델에 대한 정적 메서드 ( 테이블 )
@@ -108,6 +121,7 @@ const UserSchema: Schema = new Schema({
 	clubs: { type: Array, required: true },
 	email: { type: String, required: true, unique: true },
 	password: { type: String, required: true },
+	alarm: { type: Array, default: [] },
 	nickname: { type: String, default: "" },
 	imgPath: { type: String, default: "" },
 	lastLogin: { type: Date, default: Date.now },
@@ -145,6 +159,19 @@ UserSchema.methods.withdrawAccount = function(this: IUserSchema): Promise<any> {
 UserSchema.methods.updateLoginTime = function(this: IUserSchema): Promise<IUserSchema> {
 	this.lastLogin = new Date();
 	return this.save();
+};
+UserSchema.methods.getAlarm = function(this: IUserSchema): Alarm[] {
+	return this.alarms.map(x => {
+		x.timeString = moment(x.createAt)
+			.startOf()
+			.fromNow();
+		return x;
+	});
+};
+UserSchema.methods.pushAlarm = function(this: IUserSchema, alarm: Alarm): Promise<IUserSchema> {
+	return new Promise<IUserSchema>((resolve, reject) => {
+		this.alarms.unshift(alarm);
+	});
 };
 
 UserSchema.statics.dataCheck = function(this: IUserModel, data: any): boolean {

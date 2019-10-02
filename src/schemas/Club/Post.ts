@@ -17,6 +17,7 @@ export interface IPost {
 	content: string;
 	imgPath?: string[];
 	createAt?: Date;
+	timeString?: String;
 }
 /**
  * @description Post 스키마에 대한 메서드 ( 레코드 )
@@ -81,7 +82,8 @@ const PostSchema: Schema = new Schema({
 	title: { type: String, required: true },
 	content: { type: String, required: true },
 	imgPath: { type: Array, default: [] },
-	createAt: { type: Date, default: Date.now }
+	createAt: { type: Date, default: Date.now },
+	timeString: { type: String }
 });
 
 PostSchema.methods.removePost = function(this: IPostSchema): Promise<any> {

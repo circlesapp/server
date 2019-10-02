@@ -58,7 +58,14 @@ export const GetMyPosts = function(req: Request, res: Response, next: NextFuncti
 	let user = req.user as IUserSchema;
 	Post.findByOwner(user)
 		.then((posts: IPostSchema[]) => {
-			SendRule.response(res, HTTPRequestCode.OK, posts);
+			SendRule.response(
+				res,
+				HTTPRequestCode.OK,
+				posts.map(x => {
+					x.timeString = x.getLastTime();
+					return x;
+				})
+			);
 		})
 		.catch(err => next(err));
 };
