@@ -1,6 +1,5 @@
 import { Document, Schema, Model, model } from "mongoose";
 import { ObjectID } from "bson";
-import Club, { IClubSchema } from "../Club";
 
 /**
  * @description Applicant 요구 데이터
@@ -17,7 +16,6 @@ export interface IApplicant {
  * @description Applicant 스키마에 대한 메서드 ( 레코드 )
  */
 export interface IApplicantSchema extends IApplicant, Document {
-	removeThis(): Promise<IClubSchema>;
 }
 /**
  * @description Applicant 모델에 대한 정적 메서드 ( 테이블 )
@@ -32,19 +30,5 @@ const ApplicantSchema: Schema = new Schema({
 	level: { type: String, default: "" },
 	createAt: { type: Date, default: Date.now }
 });
-
-ApplicantSchema.methods.removeThis = function(this: IApplicantSchema): Promise<IClubSchema> {
-	return new Promise<IClubSchema>((resolve, reject) => {
-		Club.findByID(this.club)
-			.then(club => {
-				club.removeApplicant(this)
-					.then(club => {
-						resolve(club);
-					})
-					.catch(err => reject(err));
-			})
-			.catch(err => reject(err));
-	});
-};
 
 export default model<IApplicantSchema>("Applicant", ApplicantSchema) as IApplicantModel;

@@ -4,6 +4,8 @@ import { IUserSchema } from "../User";
 
 import * as moment from "moment";
 import "moment-timezone";
+import Comment, { IComment, ICommentSchema } from "./Post/Comment";
+import { StatusError } from "../../modules/Send-Rule";
 moment.tz.setDefault("Asia/Seoul");
 moment.locale("ko");
 
@@ -11,13 +13,15 @@ moment.locale("ko");
  * @description Post 요구 데이터
  */
 export interface IPost {
-	club: ObjectID;
-	owner: ObjectID;
-	title: string;
-	content: string;
-	isPublic: boolean;
-	imgPath?: string[];
-	createAt?: Date;
+	club: ObjectID; // 소속동아리
+	owner: ObjectID; // 주인
+	title: string; // 제목
+	content: string; // 내용
+	comments: ObjectID[]; // 댓글들 ICommentSchema
+	likes: ObjectID[]; // 좋아요들 IUserSchema
+	isPublic: boolean; // 공개 여부
+	imgPath?: string[]; // 이미지들
+	createAt?: Date; // 생성일
 	timeString?: String;
 }
 /**
@@ -46,6 +50,10 @@ export interface IPostSchema extends IPost, Document {
 	 * @returns {string} 글이 몇 분 전에 써졌는지 반환합니다.
 	 */
 	getLastTime(): string;
+	pushComment(user: IUserSchema, data: IComment): Promise<IPostSchema>;
+	removeComment(comment: ICommentSchema): Promise<IPostSchema>;
+	pushLike(user: IUserSchema): Promise<IPostSchema>;
+	removeLike(user: IUserSchema): Promise<IPostSchema>;
 }
 /**
  * @description Post 모델에 대한 정적 메서드 ( 테이블 )
@@ -82,11 +90,71 @@ const PostSchema: Schema = new Schema({
 	owner: { type: ObjectID, required: true },
 	title: { type: String, required: true },
 	content: { type: String, required: true },
+	comments: { type: Array, default: [] },
+	likes: { type: Array, default: [] },
 	imgPath: { type: Array, default: [] },
 	isPublic: { type: Boolean, default: false },
 	createAt: { type: Date, default: Date.now },
 	timeString: { type: String }
 });
+
+PostSchema.methods.pushComment = function(this: IPostSchema, user: IUserSchema, data: IComment): Promise<IPostSchema> {
+	return new Promise<IPostSchema>((resolve, reject) => {
+		let comment = new Comment(data);
+		comment.owner = user._id;
+		comment
+			.save()
+			.then(comment => {
+				this.comments.push(comment._id);
+				this.save()
+					.then(post => resolve(post))
+					.catch(err => reject(err));
+			})
+			.catch(err => reject(err));
+	});
+};
+PostSchema.methods.removeComment = function(this: IPostSchema, comment: ICommentSchema): Promise<IPostSchema> {
+	return new Promise<IPostSchema>((resolve, reject) => {
+		let idx = this.comments.indexOf(comment._id);
+		comment
+			.remove()
+			.then(() => {
+				if (idx != -1) {
+					this.comments.splice(idx, 1);
+				}
+				this.save()
+					.then(post => resolve(post))
+					.catch(err => reject(err));
+			})
+			.catch(err => reject(err));
+	});
+};
+PostSchema.methods.pushLike = function(this: IPostSchema, user: IUserSchema): Promise<IPostSchema> {
+	return new Promise<IPostSchema>((resolve, reject) => {
+		let idx = this.likes.indexOf(user._id);
+		if (idx == -1) {
+			this.likes.push(user._id);
+			this.save()
+				.then(post => resolve(post))
+				.catch(err => reject(err));
+		} else {
+			reject(new StatusError(400, "이미 추천했습니다."));
+		}
+	});
+};
+PostSchema.methods.removeLike = function(this: IPostSchema, user: IUserSchema): Promise<IPostSchema> {
+	return new Promise<IPostSchema>((resolve, reject) => {
+		let idx = this.likes.indexOf(user._id);
+		if (idx != -1) {
+			this.likes.splice(idx, 1);
+			this.save()
+				.then(post => resolve(post))
+				.catch(err => reject(err));
+		} else {
+			reject(new StatusError(400, "이미 추천을 해제했습니다."));
+		}
+	});
+};
 
 PostSchema.methods.removePost = function(this: IPostSchema): Promise<any> {
 	return this.remove();
