@@ -17,7 +17,10 @@ export enum Permission {
 
 	ACCESS_BUDGETS_CREATE, // 에산서 생성 권한
 	ACCESS_BUDGETS_READ, // 예산서 읽기 권한
-	ACCESS_BUDGETS_DELETE // 예산서 삭제 권한
+	ACCESS_BUDGETS_DELETE, // 예산서 삭제 권한
+
+	ACCESS_APPLYCANT_READ, // 지원서 읽기 권한
+    ACCESS_APPLYCANT_DELETE, // 지원서 삭제 권한
 }
 export interface Member {
 	user: ObjectID; // 유저 아이디
@@ -54,27 +57,27 @@ export interface IClubSchema extends IClub, Document {
  */
 export interface IClubModel extends Model<IClubSchema> {
 	/**
-	 * @description 유저를 생성한 후 그 유저를 반환합니다.
-	 * @param {IUser}data 생성할 유저 데이터
-	 * @returns {Promise<IUserSchema>} 입력받은 데이터에 대한 유저입니다.
+	 * @description 동아리를 생성한 후 그 동아리를 반환합니다.
+	 * @param {IUser}data 생성할 동아리 데이터
+	 * @returns {Promise<IUserSchema>} 입력받은 데이터에 대한 동아리입니다.
 	 */
 	createClub(data: IClub): Promise<IClubSchema>;
 	/**
-	 * @description 이메일을 입력받아 일치하는 유저를 반환합니다.
-	 * @param {string}email 찾을 유저의 이메일
-	 * @returns {Promise<IUserSchema>} 일치하는 유저를 반환합니다.
+	 * @description 동아리 이름을 입력받아 일치하는 동아리를 반환합니다.
+	 * @param {string}email 찾을 동아리 이름
+	 * @returns {Promise<IUserSchema>} 일치하는 동아리를 반환합니다.
 	 */
 	findByName(name: string): Promise<IClubSchema>;
 	/**
-	 * @description 이메일을 입력받아 일치하는 유저를 반환합니다.
-	 * @param {string}email 찾을 유저의 이메일
-	 * @returns {Promise<IUserSchema>} 일치하는 유저를 반환합니다.
+	 * @description 아이디을 입력받아 일치하는 동아리를 반환합니다.
+	 * @param {string}email 찾을 동아리의 아이디
+	 * @returns {Promise<IUserSchema>} 일치하는 동아리를 반환합니다.
 	 */
 	findByID(_id: ObjectID): Promise<IClubSchema>;
 	/**
-	 * @description 이메일을 입력받아 계정의 유무를 반환합니다.
-	 * @param email 검사 할 유저의 이메일
-	 * @returns {boolean} 계정의 유무를 반환합니다.
+	 * @description 동아리 이름을 입력받아 동아리 유무를 반환합니다.
+	 * @param email 검사 할 동아리 이름
+	 * @returns {boolean} 동아리의 유무를 반환합니다.
 	 */
 	checkPresentClub(name: string): Promise<boolean>;
 }
