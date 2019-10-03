@@ -3,6 +3,8 @@ import { ObjectID } from "bson";
 import Budget, { IBudgetSchema, IBudget } from "./Club/Budget";
 import Award, { IAwardSchema, IAward } from "./Club/Award";
 import Applicant, { IApplicantSchema, IApplicant } from "./Club/Applicant";
+import { StatusError } from "../modules/Send-Rule";
+import { IUserSchema } from "./User";
 
 export enum Permission {
 	ACCESS_POST_CREATE, // 글 생성 권한
@@ -19,10 +21,9 @@ export enum Permission {
 }
 export interface Member {
 	user: ObjectID; // 유저 아이디
-	rank: symbol; // 랭크 심볼 key
+	rank: string; // 랭크 이름
 }
 export interface Rank {
-	key: symbol; // 랭크 심볼 key
 	name: string; // 랭크 이름
 	isAdmin?: boolean; // 어드민 권한
 	permission: Permission[]; // 권한들
@@ -32,19 +33,18 @@ export interface Rank {
  */
 export interface IClub {
 	name: string; // 동아리 이름
-	members: Member[]; // 동아리 회원
-	ranks: Rank[]; // 동아리 계급들
-	applicants: ObjectID[]; // 지원자들
-	budgets: ObjectID[]; // 예산서들
-	awards: ObjectID[]; // 수상자들
-	createAt: Date;
+	owner: ObjectID;
+	members?: Member[]; // 동아리 회원
+	ranks?: Rank[]; // 동아리 계급들
+	createAt?: Date;
 }
 /**
  * @description User 스키마에 대한 메서드 ( 레코드 )
  */
 export interface IClubSchema extends IClub, Document {
-	createBudget(data: IBudget): Promise<IClubSchema>;
-	createAward(data: IAward): Promise<IClubSchema>;
+	createBudget(data: IBudget): Promise<IBudgetSchema>;
+	createAward(data: IAward): Promise<IAwardSchema>;
+	createApplicant(data: IApplicant): Promise<IApplicantSchema>;
 	removeBudget(budget: IBudgetSchema): Promise<IClubSchema>;
 	removeAward(award: IAwardSchema): Promise<IClubSchema>;
 	removeApplicant(award: IApplicantSchema): Promise<IClubSchema>;
@@ -78,129 +78,71 @@ export interface IClubModel extends Model<IClubSchema> {
 	 */
 	checkPresentClub(name: string): Promise<boolean>;
 }
-
+const defaultRank: Rank[] = [
+	{
+		name: "admin",
+		isAdmin: true,
+		permission: []
+	},
+	{
+		name: "default",
+		isAdmin: false,
+		permission: [Permission.ACCESS_AWARDS_READ, Permission.ACCESS_BUDGETS_READ, Permission.ACCESS_POST_CREATE, Permission.ACCESS_POST_READ, Permission.ACCESS_POST_DELETE]
+	}
+];
 const ClubSchema: Schema = new Schema({
 	name: { type: String, required: true, unique: true },
-	ranks: { type: Array, default: [] },
-	applicants: { type: Array, default: [] },
+	owner: { type: ObjectID, required: true },
 	members: { type: Array, default: [] },
-	awards: { type: Array, default: [] },
-	budgets: { type: Array, default: [] },
+	ranks: { type: Array, default: defaultRank },
 	createAt: { type: Date, default: Date.now }
 });
 
-ClubSchema.methods.createBudget = function(this: IClubSchema, data: IBudget): Promise<IClubSchema> {
-	return new Promise<IClubSchema>((resolve, reject) => {
+ClubSchema.methods.createBudget = function(this: IClubSchema, data: IBudget): Promise<IBudgetSchema> {
+	return new Promise<IBudgetSchema>((resolve, reject) => {
 		data.club = this._id;
 		let budget = new Budget(data);
 		budget
 			.save()
-			.then(budget => {
-				this.budgets.push(budget._id);
-				this.save()
-					.then(budget => {
-						resolve(budget);
-					})
-					.catch(err => reject(err));
-			})
+			.then(budget => resolve(budget))
 			.catch(err => reject(err));
 	});
 };
-ClubSchema.methods.createAward = function(this: IClubSchema, data: IAward): Promise<IClubSchema> {
-	return new Promise<IClubSchema>((resolve, reject) => {
+ClubSchema.methods.createAward = function(this: IClubSchema, data: IAward): Promise<IAwardSchema> {
+	return new Promise<IAwardSchema>((resolve, reject) => {
 		data.club = this._id;
 		let award = new Award(data);
 		award
 			.save()
-			.then(award => {
-				this.awards.push(award._id);
-				this.save()
-					.then(award => {
-						resolve(award);
-					})
-					.catch(err => reject(err));
-			})
+			.then(award => resolve(award))
 			.catch(err => reject(err));
 	});
 };
-ClubSchema.methods.createApplicant = function(this: IClubSchema, data: IApplicant): Promise<IClubSchema> {
-	return new Promise<IClubSchema>((resolve, reject) => {
+ClubSchema.methods.createApplicant = function(this: IClubSchema, data: IApplicant): Promise<IApplicantSchema> {
+	return new Promise<IApplicantSchema>((resolve, reject) => {
 		data.club = this._id;
 		let applicant = new Applicant(data);
 		applicant
 			.save()
-			.then(applicant => {
-				this.applicants.push(applicant._id);
-				this.save()
-					.then(applicant => {
-						resolve(applicant);
-					})
-					.catch(err => reject(err));
-			})
+			.then(applicant => resolve(applicant))
 			.catch(err => reject(err));
 	});
 };
 
-ClubSchema.methods.removeBudget = function(this: IClubSchema, budget: IBudgetSchema): Promise<IClubSchema> {
+ClubSchema.statics.createClub = function(this: IClubModel, owner: IUserSchema, data: IClub): Promise<IClubSchema> {
 	return new Promise<IClubSchema>((resolve, reject) => {
-		let idx = this.budgets.findIndex(x => {
-			budget._id.equals(x);
-		});
-		if (idx != -1) {
-			this.budgets.splice(idx, 1);
-		}
-		this.save()
-			.then(club => {
-				budget
-					.remove(() => {
-						resolve(club);
-					})
+		this.checkPresentClub(data.name).then(check => {
+			if (!check) {
+				let club = new this();
+				club.owner = owner._id;
+				club.save()
+					.then(club => resolve(club))
 					.catch(err => reject(err));
-			})
-			.catch(err => reject(err));
-	});
-};
-ClubSchema.methods.removeAward = function(this: IClubSchema, award: IAwardSchema): Promise<IClubSchema> {
-	return new Promise<IClubSchema>((resolve, reject) => {
-		let idx = this.awards.findIndex(x => {
-			award._id.equals(x);
+			} else {
+				reject(new StatusError(400, "이미 있는 동아리 입니다."));
+			}
 		});
-		if (idx != -1) {
-			this.awards.splice(idx, 1);
-		}
-		this.save()
-			.then(club => {
-				award
-					.remove(() => {
-						resolve(club);
-					})
-					.catch(err => reject(err));
-			})
-			.catch(err => reject(err));
 	});
-};
-ClubSchema.methods.removeApplicant = function(this: IClubSchema, applicant: IApplicantSchema): Promise<IClubSchema> {
-	return new Promise<IClubSchema>((resolve, reject) => {
-		let idx = this.applicants.findIndex(x => {
-			applicant._id.equals(x);
-		});
-		if (idx != -1) {
-			this.applicants.splice(idx, 1);
-		}
-		this.save()
-			.then(club => {
-				applicant
-					.remove(() => {
-						resolve(club);
-					})
-					.catch(err => reject(err));
-			})
-			.catch(err => reject(err));
-	});
-};
-
-ClubSchema.statics.createClub = function(this: IClubModel, data: IClub): Promise<IClubSchema> {
-	return new Promise<IClubSchema>((resolve, reject) => {});
 };
 ClubSchema.statics.findByName = function(this: IClubModel, name: string): Promise<IClubSchema> {
 	return new Promise<IClubSchema>((resolve, reject) => {
@@ -217,6 +159,13 @@ ClubSchema.statics.findByID = function(this: IClubModel, _id: ObjectID): Promise
 	});
 };
 ClubSchema.statics.checkPresentClub = async function(this: IClubModel, name: string): Promise<boolean> {
-	return new Promise<boolean>((resolve, reject) => {});
+	return new Promise<boolean>((resolve, reject) => {
+		this.findOne({ name: { $regex: name, $options: "i" } })
+			.then(club => {
+				if (club) resolve(true);
+				else resolve(false);
+			})
+			.catch(err => reject(err));
+	});
 };
 export default model<IClubSchema>("Club", ClubSchema) as IClubModel;

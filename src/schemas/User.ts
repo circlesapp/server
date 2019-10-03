@@ -5,6 +5,7 @@ import { StatusError, HTTPRequestCode } from "../modules/Send-Rule";
 import { ObjectID } from "bson";
 import * as moment from "moment";
 import "moment-timezone";
+import { IClubSchema } from "./Club";
 moment.tz.setDefault("Asia/Seoul");
 moment.locale("ko");
 
@@ -22,7 +23,7 @@ export interface PasswordAndSalt {
  * @description User 요구 데이터
  */
 export interface IUser {
-	club: ObjectID[]; // 소속 동아리
+	clubs: ObjectID[]; // 소속 동아리
 	email: string; // 이메일
 	alarms: Alarm[]; // 알람 스택
 	password: string; // 비밀번호
@@ -67,6 +68,7 @@ export interface IUserSchema extends IUser, Document {
 	updateLoginTime(): Promise<IUserSchema>;
 	getAlarm(): Alarm[];
 	pushAlarm(alarm: Alarm): Promise<IUserSchema>;
+	isJoinClub(club: IClubSchema): boolean;
 }
 /**
  * @description User 모델에 대한 정적 메서드 ( 테이블 )
@@ -176,6 +178,28 @@ UserSchema.methods.pushAlarm = function(this: IUserSchema, alarm: Alarm): Promis
 			})
 			.catch(err => reject(err));
 	});
+};
+UserSchema.methods.joinClub = function(this: IUserSchema, club: IClubSchema): Promise<IUserSchema> {
+	return new Promise<IUserSchema>((resolve, reject) => {
+		if (!this.isJoinClub(club)) {
+			this.clubs.push(club._id);
+			this.save()
+				.then(user => {
+					club.members.push({ rank: "default", user: this._id });
+					club.save()
+						.then(club => {
+							resolve(user);
+						})
+						.catch(err => reject(err));
+				})
+				.catch(err => reject(err));
+		} else {
+			reject(new StatusError(400, "이미 가입된 동아리 입니다."));
+		}
+	});
+};
+UserSchema.methods.isJoinClub = function(this: IUserSchema, club: IClubSchema): boolean {
+	return !!this.clubs.filter(_id => club._id.equals(_id)).length;
 };
 
 UserSchema.statics.dataCheck = function(this: IUserModel, data: any): boolean {
