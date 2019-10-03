@@ -1,5 +1,5 @@
 import { Router } from "express";
-import PassportJWTAuth from "../../modules/PassportJWT-Auth";
+import PassportJWTAuth from "../../../modules/PassportJWT-Auth";
 import { Write, GetMyPosts, Modification, Delete } from "./post.controller";
 
 const router = Router();

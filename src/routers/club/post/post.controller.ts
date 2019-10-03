@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from "express";
-import { IUserSchema } from "../../schemas/User";
-import Post, { IPost, IPostSchema } from "../../schemas/Club/Post";
-import SendRule, { StatusError, HTTPRequestCode } from "../../modules/Send-Rule";
+import { IUserSchema } from "../../../schemas/User";
+import Post, { IPost, IPostSchema } from "../../../schemas/Club/Post";
+import SendRule, { StatusError, HTTPRequestCode } from "../../../modules/Send-Rule";
 import * as fs from "fs";
-import Base64ToImage from "../../modules/Base64-To-Image";
+import Base64ToImage from "../../../modules/Base64-To-Image";
 
 /**
  * @description 글쓰기 라우터입니다.

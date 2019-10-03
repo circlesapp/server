@@ -20,7 +20,7 @@ export enum Permission {
 	ACCESS_BUDGETS_DELETE, // 예산서 삭제 권한
 
 	ACCESS_APPLYCANT_READ, // 지원서 읽기 권한
-    ACCESS_APPLYCANT_DELETE, // 지원서 삭제 권한
+	ACCESS_APPLYCANT_DELETE // 지원서 삭제 권한
 }
 export interface Member {
 	user: ObjectID; // 유저 아이디
@@ -61,7 +61,7 @@ export interface IClubModel extends Model<IClubSchema> {
 	 * @param {IUser}data 생성할 동아리 데이터
 	 * @returns {Promise<IUserSchema>} 입력받은 데이터에 대한 동아리입니다.
 	 */
-	createClub(data: IClub): Promise<IClubSchema>;
+	createClub(owner: IUserSchema, data: IClub): Promise<IClubSchema>;
 	/**
 	 * @description 동아리 이름을 입력받아 일치하는 동아리를 반환합니다.
 	 * @param {string}email 찾을 동아리 이름
