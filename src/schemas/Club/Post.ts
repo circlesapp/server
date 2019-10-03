@@ -6,6 +6,7 @@ import * as moment from "moment";
 import "moment-timezone";
 import Comment, { IComment, ICommentSchema } from "./Post/Comment";
 import { StatusError } from "../../modules/Send-Rule";
+import { IClubSchema } from "../Club";
 moment.tz.setDefault("Asia/Seoul");
 moment.locale("ko");
 
@@ -13,8 +14,8 @@ moment.locale("ko");
  * @description Post 요구 데이터
  */
 export interface IPost {
-	club: ObjectID; // 소속동아리
-	owner: ObjectID; // 주인
+	club?: ObjectID; // 소속동아리
+	owner?: ObjectID; // 주인
 	title: string; // 제목
 	content: string; // 내용
 	comments: ObjectID[]; // 댓글들 ICommentSchema
@@ -70,7 +71,7 @@ export interface IPostModel extends Model<IPostSchema> {
 	 * @param {IUser}data 생성할 글 데이터
 	 * @returns {Promise<IUserSchema>} 입력받은 데이터에 대한 글입니다.
 	 */
-	createPost(owner: IUserSchema, data: IPost): Promise<IPostSchema>;
+	createPost(club: IClubSchema, owner: IUserSchema, data: IPost): Promise<IPostSchema>;
 	/**
 	 * @description 글의 아이디을 입력받아 일치하는 글를 반환합니다.
 	 * @param {ObjectID}id 찾을 글의 _id(ObjectID)
@@ -177,10 +178,11 @@ PostSchema.methods.getLastTime = function(this: IPostSchema): string {
 PostSchema.statics.dataCheck = function(this: IPostSchema, data: any): boolean {
 	return "title" in data && "content" in data;
 };
-PostSchema.statics.createPost = function(this: IPostModel, owner: IUserSchema, data: IPost): Promise<IPostSchema> {
-	data.owner = owner._id;
-	let post = new this(data);
+PostSchema.statics.createPost = function(this: IPostModel, club: IClubSchema, owner: IUserSchema, data: IPost): Promise<IPostSchema> {
 	return new Promise((resolve, reject) => {
+		data.owner = owner._id;
+		data.club = club._id;
+		let post = new this(data);
 		post.save()
 			.then((data: IPostSchema) => {
 				resolve(data);

@@ -5,6 +5,7 @@ import Award, { IAwardSchema, IAward } from "./Club/Award";
 import Applicant, { IApplicantSchema, IApplicant } from "./Club/Applicant";
 import { StatusError } from "../modules/Send-Rule";
 import { IUserSchema } from "./User";
+import Post, { IPostSchema } from "./Club/Post";
 
 export enum Permission {
 	ACCESS_POST_CREATE, // 글 생성 권한
@@ -45,12 +46,12 @@ export interface IClub {
  * @description User 스키마에 대한 메서드 ( 레코드 )
  */
 export interface IClubSchema extends IClub, Document {
-	createBudget(data: IBudget): Promise<IBudgetSchema>;
-	createAward(data: IAward): Promise<IAwardSchema>;
-	createApplicant(data: IApplicant): Promise<IApplicantSchema>;
-	removeBudget(budget: IBudgetSchema): Promise<IClubSchema>;
-	removeAward(award: IAwardSchema): Promise<IClubSchema>;
-	removeApplicant(award: IApplicantSchema): Promise<IClubSchema>;
+	getClubPosts(): Promise<IPostSchema[]>;
+	getClubBudgets(): Promise<IBudgetSchema[]>;
+	getClubAwards(): Promise<IAwardSchema[]>;
+	getClubApplicants(): Promise<IApplicantSchema[]>;
+
+	checkPermission(permission: Permission, user: IUserSchema);
 }
 /**
  * @description User 모델에 대한 정적 메서드 ( 테이블 )
@@ -101,45 +102,64 @@ const ClubSchema: Schema = new Schema({
 	createAt: { type: Date, default: Date.now }
 });
 
-ClubSchema.methods.createBudget = function(this: IClubSchema, data: IBudget): Promise<IBudgetSchema> {
-	return new Promise<IBudgetSchema>((resolve, reject) => {
-		data.club = this._id;
-		let budget = new Budget(data);
-		budget
-			.save()
-			.then(budget => resolve(budget))
+ClubSchema.methods.getClubPosts = function(this: IClubSchema): Promise<IPostSchema[]> {
+	return new Promise<IPostSchema[]>((resolve, reject) => {
+		Post.find({ club: this._id })
+			.then(posts => resolve(posts))
 			.catch(err => reject(err));
 	});
 };
-ClubSchema.methods.createAward = function(this: IClubSchema, data: IAward): Promise<IAwardSchema> {
-	return new Promise<IAwardSchema>((resolve, reject) => {
-		data.club = this._id;
-		let award = new Award(data);
-		award
-			.save()
-			.then(award => resolve(award))
+ClubSchema.methods.getClubBudgets = function(this: IClubSchema): Promise<IBudgetSchema[]> {
+	return new Promise<IBudgetSchema[]>((resolve, reject) => {
+		Budget.find({ club: this._id })
+			.then(budgets => resolve(budgets))
 			.catch(err => reject(err));
 	});
 };
-ClubSchema.methods.createApplicant = function(this: IClubSchema, data: IApplicant): Promise<IApplicantSchema> {
-	return new Promise<IApplicantSchema>((resolve, reject) => {
-		data.club = this._id;
-		let applicant = new Applicant(data);
-		applicant
-			.save()
-			.then(applicant => resolve(applicant))
+ClubSchema.methods.getClubAwards = function(this: IClubSchema): Promise<IAwardSchema[]> {
+	return new Promise<IAwardSchema[]>((resolve, reject) => {
+		Award.find({ club: this._id })
+			.then(awards => resolve(awards))
 			.catch(err => reject(err));
 	});
+};
+ClubSchema.methods.getClubApplicants = function(this: IClubSchema): Promise<IApplicantSchema[]> {
+	return new Promise<IApplicantSchema[]>((resolve, reject) => {
+		Applicant.find({ club: this._id })
+			.then(applicants => resolve(applicants))
+			.catch(err => reject(err));
+	});
+};
+
+ClubSchema.methods.checkPermission = function(this: IClubSchema, permission: Permission, user: IUserSchema): boolean {
+	if (user.isJoinClub(this)) {
+		let userMember = this.members.find(member => member.user.equals(user._id));
+		let userRank = this.ranks.find(rank => rank.name == userMember.rank);
+		if (userRank.isAdmin == true) return true;
+		else return userRank.permission.indexOf(permission) != -1;
+	} else {
+		return false;
+	}
 };
 
 ClubSchema.statics.createClub = function(this: IClubModel, owner: IUserSchema, data: IClub): Promise<IClubSchema> {
 	return new Promise<IClubSchema>((resolve, reject) => {
 		this.checkPresentClub(data.name).then(check => {
 			if (!check) {
-				let club = new this();
+				let club = new this(data);
 				club.owner = owner._id;
+				club.members.push({
+					user: owner._id,
+					rank: "admin"
+				});
 				club.save()
-					.then(club => resolve(club))
+					.then(club => {
+						owner.clubs.push(club._id);
+						owner
+							.save()
+							.then(user => resolve(club))
+							.catch(err => reject(err));
+					})
 					.catch(err => reject(err));
 			} else {
 				reject(new StatusError(400, "이미 있는 동아리 입니다."));

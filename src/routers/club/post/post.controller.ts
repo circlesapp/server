@@ -4,6 +4,7 @@ import Post, { IPost, IPostSchema } from "../../../schemas/Club/Post";
 import SendRule, { StatusError, HTTPRequestCode } from "../../../modules/Send-Rule";
 import * as fs from "fs";
 import Base64ToImage from "../../../modules/Base64-To-Image";
+import { IClubSchema, Permission } from "../../../schemas/Club";
 
 /**
  * @description 글쓰기 라우터입니다.
@@ -13,50 +14,57 @@ import Base64ToImage from "../../../modules/Base64-To-Image";
  */
 export const Write = function(req: Request, res: Response, next: NextFunction) {
 	let user = req.user as IUserSchema;
+	let club = (req as any).club as IClubSchema;
 	let data = req.body as IPost;
 	let imageData = (req.body.img as string[]) || []; // img
-	if (Post.dataCheck(data)) {
-		if (imageData.length > 0) {
-			// img
-			Post.createPost(user, data)
-				.then((post: IPostSchema) => {
-					try {
-						imageData.forEach((x, idx) => {
-							let data = Base64ToImage.getImageData(x);
-							let path = `post/${post._id}_${idx}.${data.imgType}`;
-							fs.writeFileSync(`public/${path}`, data.imgFile);
-							post.imgPath.push(path);
-						});
-						post.save()
-							.then(post => {
-								SendRule.response(res, HTTPRequestCode.CREATE, post, "글 작성 성공");
-							})
-							.catch(err => next(err));
-					} catch (err) {
-						next(err);
-					}
-				})
-				.catch(err => next(err));
-		} else {
-			Post.createPost(user, data)
-				.then((post: IPostSchema) => {
-					SendRule.response(res, HTTPRequestCode.CREATE, post, "글 작성 성공");
-				})
-				.catch(err => next(err));
-		}
+	if (!user.isJoinClub(club)) {
+		return next(new StatusError(HTTPRequestCode.FORBIDDEN, "소속된 동아리가 아님"));
+	} else if (!club.checkPermission(Permission.ACCESS_POST_CREATE, user)) {
+		return next(new StatusError(HTTPRequestCode.FORBIDDEN, "동아리 내부 권한 없음"));
+	}
+	if (!Post.dataCheck(data)) {
+		return next(new StatusError(HTTPRequestCode.BAD_REQUEST, "잘못된 요청"));
+	}
+	if (imageData.length > 0) {
+		// img
+		Post.createPost(club, user, data)
+			.then((post: IPostSchema) => {
+				try {
+					imageData.forEach((x, idx) => {
+						let data = Base64ToImage.getImageData(x);
+						let path = `post/${post._id}_${idx}.${data.imgType}`;
+						fs.writeFileSync(`public/${path}`, data.imgFile);
+						post.imgPath.push(path);
+					});
+					post.save()
+						.then(post => {
+							SendRule.response(res, HTTPRequestCode.CREATE, post, "글 작성 성공");
+						})
+						.catch(err => next(err));
+				} catch (err) {
+					next(err);
+				}
+			})
+			.catch(err => next(err));
 	} else {
-		next(new StatusError(HTTPRequestCode.BAD_REQUEST, "잘못된 요청"));
+		Post.createPost(club, user, data)
+			.then((post: IPostSchema) => {
+				SendRule.response(res, HTTPRequestCode.CREATE, post, "글 작성 성공");
+			})
+			.catch(err => next(err));
 	}
 };
 /**
- * @description 내 글을 반환하는 라우터입니다.
+ * @description 모든 공개 글을 반환하는 라우터 입니다.
  * @param {Request}req Express req
  * @param {Response}res Express res
  * @param {NextFunction}next Express next
  */
-export const GetMyPosts = function(req: Request, res: Response, next: NextFunction) {
+export const GetPublicPosts = function(req: Request, res: Response, next: NextFunction) {
 	let user = req.user as IUserSchema;
-	Post.findByOwner(user)
+	let club = (req as any).club as IClubSchema;
+
+	club.getClubPosts()
 		.then((posts: IPostSchema[]) => {
 			SendRule.response(
 				res,

@@ -200,7 +200,7 @@ UserSchema.methods.joinClub = function(this: IUserSchema, club: IClubSchema): Pr
 	});
 };
 UserSchema.methods.isJoinClub = function(this: IUserSchema, club: IClubSchema): boolean {
-	return !!this.clubs.filter(_id => club._id.equals(_id)).length;
+	return this.clubs.filter(_id => club._id.equals(_id)).length > 0 && club.members.filter(member => member.user.equals(this._id)).length > 0;
 };
 
 UserSchema.statics.dataCheck = function(this: IUserModel, data: any): boolean {
