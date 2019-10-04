@@ -45,7 +45,8 @@ export interface IPostSchema extends IPost, Document {
 	 * @param owner 비교할 주인
 	 * @returns {boolean} 주인 여부를 반환합니다.
 	 */
-	ownerCheck(owner: IUserSchema): boolean;
+	checkOwner(user: IUserSchema): boolean;
+	checkClub(user: IClubSchema): boolean;
 	/**
 	 * @description 글이 써진 시간을 현제 시간과 계산하여 문자열로 반환합니다.
 	 * @returns {string} 글이 몇 분 전에 써졌는지 반환합니다.
@@ -166,8 +167,11 @@ PostSchema.methods.changeInfomation = function(this: IPostSchema, data: IPost): 
 	});
 	return this.save();
 };
-PostSchema.methods.ownerCheck = function(this: IPostSchema, data: IUserSchema): boolean {
-	return data._id.equals(this.owner);
+PostSchema.methods.checkOwner = function(this: IPostSchema, user: IUserSchema): boolean {
+	return user._id.equals(this.owner);
+};
+PostSchema.methods.checkClub = function(this: IPostSchema, club: IClubSchema): boolean {
+	return club._id.equals(this.club);
 };
 PostSchema.methods.getLastTime = function(this: IPostSchema): string {
 	return moment(this.createAt)

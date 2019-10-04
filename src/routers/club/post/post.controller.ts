@@ -85,22 +85,29 @@ export const GetPublicPosts = function(req: Request, res: Response, next: NextFu
  */
 export const Modification = function(req: Request, res: Response, next: NextFunction) {
 	let user = req.user as IUserSchema;
+	let club = (req as any).club as IClubSchema;
 	let data = req.body;
-	if ("_id" in data) {
-		Post.findByID(data._id).then(post => {
-			if (post.ownerCheck(user)) {
-				post.changeInfomation(data)
-					.then(post => {
-						SendRule.response(res, 200, post, "글 수정 성공");
-					})
-					.catch(err => next(err));
-			} else {
-				SendRule.response(res, HTTPRequestCode.FORBIDDEN, undefined, "권한 없음");
-			}
-		});
-	} else {
-		next(new StatusError(HTTPRequestCode.BAD_REQUEST, "잘못된 요청"));
+	if (!user.isJoinClub(club)) {
+		return next(new StatusError(HTTPRequestCode.FORBIDDEN, "소속된 동아리가 아님"));
+	} else if (!club.checkPermission(Permission.ACCESS_POST_CREATE, user)) {
+		return next(new StatusError(HTTPRequestCode.FORBIDDEN, "동아리 내부 권한 없음"));
 	}
+	if (!("_id" in data)) {
+		return next(new StatusError(HTTPRequestCode.BAD_REQUEST, "잘못된 요청"));
+	}
+	Post.findByID(data._id).then(post => {
+		if (!post.checkClub(club)) {
+			return next(new StatusError(HTTPRequestCode.BAD_REQUEST, "동아리 소속이 잘못 됨"));
+		}
+		if (post.checkOwner(user) || club.checkAdmin(user)) {
+			return SendRule.response(res, HTTPRequestCode.FORBIDDEN, undefined, "권한 없음");
+		}
+		post.changeInfomation(data)
+			.then(post => {
+				SendRule.response(res, 200, post, "글 수정 성공");
+			})
+			.catch(err => next(err));
+	});
 };
 /**
  * @description 글삭제 라우터입니다.
@@ -110,27 +117,39 @@ export const Modification = function(req: Request, res: Response, next: NextFunc
  */
 export const Delete = function(req: Request, res: Response, next: NextFunction) {
 	let user = req.user as IUserSchema;
+	let club = (req as any).club as IClubSchema;
 	let data = req.body;
-	if ("_id" in data) {
-		Post.findByID(data._id).then(post => {
-			if (post.ownerCheck(user)) {
-				post.removePost()
-					.then((post: IPostSchema) => {
-						if (post.imgPath) {
-							fs.unlink(`public/${post.imgPath}`, err => {
-								if (err) next(err);
-								SendRule.response(res, 200, post, "글 제거 성공");
-							});
-						} else {
-							SendRule.response(res, 200, post, "글 제거 성공");
-						}
-					})
-					.catch(err => next(err));
-			} else {
-				SendRule.response(res, HTTPRequestCode.FORBIDDEN, undefined, "권한 없음");
-			}
-		});
-	} else {
-		next(new StatusError(HTTPRequestCode.BAD_REQUEST, "잘못된 요청"));
+
+	if (!user.isJoinClub(club)) {
+		return next(new StatusError(HTTPRequestCode.FORBIDDEN, "소속된 동아리가 아님"));
+	} else if (!club.checkPermission(Permission.ACCESS_POST_DELETE, user)) {
+		return next(new StatusError(HTTPRequestCode.FORBIDDEN, "동아리 내부 권한 없음"));
 	}
+	if (!("_id" in data)) {
+		return next(new StatusError(HTTPRequestCode.BAD_REQUEST, "잘못된 요청"));
+	}
+	Post.findByID(data._id).then(post => {
+		if (!post.checkClub(club)) {
+			return next(new StatusError(HTTPRequestCode.BAD_REQUEST, "동아리 소속이 잘못 됨"));
+		}
+		if (post.checkOwner(user) || club.checkAdmin(user)) {
+			return SendRule.response(res, HTTPRequestCode.FORBIDDEN, undefined, "권한 없음");
+		}
+		post.removePost()
+			.then((post: IPostSchema) => {
+				if (post.imgPath) {
+					try {
+						post.imgPath.forEach(path => {
+							fs.unlinkSync(`public/${path}`);
+						});
+						SendRule.response(res, 200, post, "글 제거 성공");
+					} catch (err) {
+						next(err);
+					}
+				} else {
+					SendRule.response(res, 200, post, "글 제거 성공");
+				}
+			})
+			.catch(err => next(err));
+	});
 };

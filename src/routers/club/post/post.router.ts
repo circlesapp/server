@@ -7,7 +7,7 @@ const router = Router();
 // Routers
 router.post("/write", PassportJWTAuth.authenticate(), Write);
 router.get("/getPublicPosts", PassportJWTAuth.authenticate(), GetPublicPosts);
-router.post("/modification", PassportJWTAuth.authenticate(), Modification);
-router.post("/delete", PassportJWTAuth.authenticate(), Delete);
+router.post("/modification", PassportJWTAuth.authenticate(), Modification); // TODO:
+router.post("/delete", PassportJWTAuth.authenticate(), Delete); // TODO:
 
 export default router;

@@ -52,6 +52,7 @@ export interface IClubSchema extends IClub, Document {
 	getClubApplicants(): Promise<IApplicantSchema[]>;
 
 	checkPermission(permission: Permission, user: IUserSchema);
+	checkAdmin(user: IUserSchema);
 }
 /**
  * @description User 모델에 대한 정적 메서드 ( 테이블 )
@@ -137,6 +138,15 @@ ClubSchema.methods.checkPermission = function(this: IClubSchema, permission: Per
 		let userRank = this.ranks.find(rank => rank.name == userMember.rank);
 		if (userRank.isAdmin == true) return true;
 		else return userRank.permission.indexOf(permission) != -1;
+	} else {
+		return false;
+	}
+};
+ClubSchema.methods.checkAdmin = function(this: IClubSchema, user: IUserSchema): boolean {
+	if (user.isJoinClub(this)) {
+		let userMember = this.members.find(member => member.user.equals(user._id));
+		let userRank = this.ranks.find(rank => rank.name == userMember.rank);
+		return userRank.isAdmin;
 	} else {
 		return false;
 	}
