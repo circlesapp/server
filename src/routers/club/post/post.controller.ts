@@ -99,7 +99,7 @@ export const Modification = function(req: Request, res: Response, next: NextFunc
 		if (!post.checkClub(club)) {
 			return next(new StatusError(HTTPRequestCode.BAD_REQUEST, "동아리 소속이 잘못 됨"));
 		}
-		if (post.checkOwner(user) || club.checkAdmin(user)) {
+		if (!(post.checkOwner(user) || club.checkAdmin(user))) {
 			return SendRule.response(res, HTTPRequestCode.FORBIDDEN, undefined, "권한 없음");
 		}
 		post.changeInfomation(data)
@@ -132,7 +132,7 @@ export const Delete = function(req: Request, res: Response, next: NextFunction) 
 		if (!post.checkClub(club)) {
 			return next(new StatusError(HTTPRequestCode.BAD_REQUEST, "동아리 소속이 잘못 됨"));
 		}
-		if (post.checkOwner(user) || club.checkAdmin(user)) {
+		if (!(post.checkOwner(user) || club.checkAdmin(user))) {
 			return SendRule.response(res, HTTPRequestCode.FORBIDDEN, undefined, "권한 없음");
 		}
 		post.removePost()
