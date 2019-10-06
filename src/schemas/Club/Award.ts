@@ -8,7 +8,7 @@ export interface IAward {
 	club: ObjectID; // 소속 동아리
 	title: string; // 대회 이름
 	subtitle: string; // 부문
-	target: string[]; // 수상자들 ObjectID??
+	target: ObjectID[]; // 수상자들 ObjectID??
 	level: string; // 상격
 	date: Date;
 }
@@ -25,7 +25,7 @@ const AwardSchema: Schema = new Schema({
 	club: { type: ObjectID, required: true },
 	title: { type: String, default: "" },
 	subtitle: { type: String, default: "" },
-	target: { type: Array, default: [] },
+	target: [{ type: ObjectID, ref: "User" }],
 	level: { type: String, default: "" },
 	date: { type: Date, default: Date.now }
 });

@@ -38,6 +38,7 @@ export interface Rank {
 export interface IClub {
 	name: string; // 동아리 이름
 	owner: ObjectID;
+	imgPath: string;
 	members?: Member[]; // 동아리 회원
 	ranks?: Rank[]; // 동아리 계급들
 	createAt?: Date;
@@ -98,6 +99,7 @@ const defaultRank: Rank[] = [
 const ClubSchema: Schema = new Schema({
 	name: { type: String, required: true, unique: true },
 	owner: { type: Schema.Types.ObjectId, required: true, ref: "User" },
+	imgPath: { type: String, default: "" },
 	members: { type: Array, default: [] },
 	ranks: { type: Array, default: defaultRank },
 	createAt: { type: Date, default: Date.now }
@@ -124,6 +126,7 @@ ClubSchema.methods.getClubBudgets = function(this: IClubSchema): Promise<IBudget
 ClubSchema.methods.getClubAwards = function(this: IClubSchema): Promise<IAwardSchema[]> {
 	return new Promise<IAwardSchema[]>((resolve, reject) => {
 		Award.find({ club: this._id })
+			.populate("target", "name imgPath")
 			.then(awards => resolve(awards))
 			.catch(err => reject(err));
 	});
