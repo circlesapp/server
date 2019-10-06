@@ -89,7 +89,7 @@ export interface IPostModel extends Model<IPostSchema> {
 
 const PostSchema: Schema = new Schema({
 	club: { type: ObjectID, required: true },
-	owner: { type: ObjectID, required: true },
+	owner: { type: ObjectID, required: true, ref: "User" },
 	title: { type: String, required: true },
 	content: { type: String, required: true },
 	comments: { type: Array, default: [] },

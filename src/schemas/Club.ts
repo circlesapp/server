@@ -97,7 +97,7 @@ const defaultRank: Rank[] = [
 ];
 const ClubSchema: Schema = new Schema({
 	name: { type: String, required: true, unique: true },
-	owner: { type: ObjectID, required: true },
+	owner: { type: Schema.Types.ObjectId, required: true, ref: "User" },
 	members: { type: Array, default: [] },
 	ranks: { type: Array, default: defaultRank },
 	createAt: { type: Date, default: Date.now }
@@ -106,7 +106,11 @@ const ClubSchema: Schema = new Schema({
 ClubSchema.methods.getClubPosts = function(this: IClubSchema): Promise<IPostSchema[]> {
 	return new Promise<IPostSchema[]>((resolve, reject) => {
 		Post.find({ club: this._id })
-			.then(posts => resolve(posts))
+			.populate("owner", "name imgPath")
+			.sort({ createAt: -1 })
+			.then(posts => {
+				resolve(posts);
+			})
 			.catch(err => reject(err));
 	});
 };

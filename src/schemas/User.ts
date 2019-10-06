@@ -25,8 +25,9 @@ export interface PasswordAndSalt {
 export interface IUser {
 	clubs: ObjectID[]; // 소속 동아리
 	email: string; // 이메일
-	alarms: Alarm[]; // 알람 스택
 	password: string; // 비밀번호
+	name: string;
+	alarms: Alarm[]; // 알람 스택
 	imgPath: string; // 프로필 사진
 	lastLogin?: Date; // 마지막 로그인 시간
 	createAt?: Date; // 생성일
@@ -123,8 +124,8 @@ const UserSchema: Schema = new Schema({
 	clubs: { type: Array, required: true },
 	email: { type: String, required: true, unique: true },
 	password: { type: String, required: true },
+	name: { type: String, required: true },
 	alarm: { type: Array, default: [] },
-	nickname: { type: String, default: "" },
 	imgPath: { type: String, default: "" },
 	lastLogin: { type: Date, default: Date.now },
 	createAt: { type: Date, default: Date.now },

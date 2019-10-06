@@ -1,12 +1,14 @@
 import { Router, Request, Response, NextFunction } from "express";
 import PassportJWTAuth from "../../modules/PassportJWT-Auth";
-import { Create } from "./club.controller";
+import { Create, GetClubInformation, GetAllClubs } from "./club.controller";
 import ClubName from "./clubname.router";
 import { StatusError } from "../../modules/Send-Rule";
 import Club from "../../schemas/Club";
 
 const router = Router();
 // Routers
+router.get("/getClubInformation", GetClubInformation);
+router.get("/getAllClubs", GetAllClubs);
 router.post("/create", PassportJWTAuth.authenticate(), Create);
 
 router.use(
