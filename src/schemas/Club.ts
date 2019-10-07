@@ -4,7 +4,7 @@ import Budget, { IBudgetSchema, IBudget } from "./Club/Budget";
 import Award, { IAwardSchema, IAward } from "./Club/Award";
 import Applicant, { IApplicantSchema, IApplicant } from "./Club/Applicant";
 import { StatusError } from "../modules/Send-Rule";
-import { IUserSchema } from "./User";
+import User, { IUserSchema } from "./User";
 import Post, { IPostSchema } from "./Club/Post";
 
 export enum Permission {
@@ -47,6 +47,7 @@ export interface IClub {
  * @description User 스키마에 대한 메서드 ( 레코드 )
  */
 export interface IClubSchema extends IClub, Document {
+	getClubMembers(): Promise<IUserSchema[]>;
 	getClubPosts(): Promise<IPostSchema[]>;
 	getClubBudgets(): Promise<IBudgetSchema[]>;
 	getClubAwards(): Promise<IAwardSchema[]>;
@@ -104,6 +105,18 @@ const ClubSchema: Schema = new Schema({
 	ranks: { type: Array, default: defaultRank },
 	createAt: { type: Date, default: Date.now }
 });
+
+ClubSchema.methods.getClubMembers = function(this: IClubSchema): Promise<IUserSchema[]> {
+	return new Promise<IUserSchema[]>((resolve, reject) => {
+		User.find({ _id: this.members.map(user => user.user) }, { name: 1, imgPath: 1 })
+			.populate("owner", "name imgPath")
+			.sort({ createAt: -1 })
+			.then(users => {
+				resolve(users);
+			})
+			.catch(err => reject(err));
+	});
+};
 
 ClubSchema.methods.getClubPosts = function(this: IClubSchema): Promise<IPostSchema[]> {
 	return new Promise<IPostSchema[]>((resolve, reject) => {
