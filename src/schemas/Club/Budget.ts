@@ -12,7 +12,7 @@ export interface IBudget {
 	url: string; // URL
 	quantity: number; // 개수
 	shipping: number; // 배송비
-	date: Date;
+	date: Date; // 마감
 }
 /**
  * @description Budget 스키마에 대한 메서드 ( 레코드 )
@@ -31,6 +31,7 @@ const IBudgetSchema: Schema = new Schema({
 	url: { type: String, default: "" },
 	quantity: { type: Number, default: "" },
 	shipping: { type: Number, default: "" },
+	date: { type: Date, default: Date.now },
 	createAt: { type: Date, default: Date.now }
 });
 

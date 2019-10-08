@@ -14,7 +14,8 @@ export const Write = function(req: Request, res: Response, next: NextFunction) {
 	} else if (!club.checkPermission(Permission.ACCESS_AWARDS_CREATE, user)) {
 		return next(new StatusError(HTTPRequestCode.FORBIDDEN, "동아리 내부 권한 없음"));
 	}
-	let award = new Award(data);
+    let award = new Award(data);
+    award.club = club._id;
 	award
 		.save()
 		.then(award => {
