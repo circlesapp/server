@@ -6,6 +6,7 @@ import { ObjectID } from "bson";
 import * as moment from "moment";
 import "moment-timezone";
 import { IClubSchema } from "./Club";
+import { IApplicantSchema } from "./Club/Applicant";
 moment.tz.setDefault("Asia/Seoul");
 moment.locale("ko");
 
@@ -27,6 +28,7 @@ export interface IUser {
 	email: string; // 이메일
 	password: string; // 비밀번호
 	name: string;
+	applicants: ObjectID[];
 	alarms: Alarm[]; // 알람 스택
 	imgPath: string; // 프로필 사진
 	lastLogin?: Date; // 마지막 로그인 시간
@@ -68,6 +70,8 @@ export interface IUserSchema extends IUser, Document {
 	 */
 	updateLoginTime(): Promise<IUserSchema>;
 	getAlarm(): Alarm[];
+	pushApplicant(applicant: IApplicantSchema): Promise<IUserSchema>;
+	removeApplicant(applicant: IApplicantSchema): Promise<IUserSchema>;
 	pushAlarm(alarm: Alarm): Promise<IUserSchema>;
 	removeAlarm(alarm: Alarm): Promise<IUserSchema>;
 	isJoinClub(club: IClubSchema): boolean;
@@ -125,6 +129,7 @@ const UserSchema: Schema = new Schema({
 	email: { type: String, required: true, unique: true },
 	password: { type: String, required: true },
 	name: { type: String, required: true },
+	applicants: { type: Array, default: [] },
 	alarm: { type: Array, default: [] },
 	imgPath: { type: String, default: "" },
 	lastLogin: { type: Date, default: Date.now },
@@ -163,6 +168,28 @@ UserSchema.methods.updateLoginTime = function(this: IUserSchema): Promise<IUserS
 	this.lastLogin = new Date();
 	return this.save();
 };
+
+UserSchema.methods.pushApplicant = function(this: IUserSchema, applicant: IApplicantSchema): Promise<IUserSchema> {
+	return new Promise<IUserSchema>((resolve, reject) => {
+		this.applicants.push(applicant._id);
+		this.save()
+			.then(user => {
+				resolve(user);
+			})
+			.catch(err => reject(err));
+	});
+};
+UserSchema.methods.removeApplicant = function(this: IUserSchema, applicant: IApplicantSchema): Promise<IUserSchema> {
+	return new Promise<IUserSchema>((resolve, reject) => {
+		this.applicants.splice(this.applicants.indexOf(applicant._id), 1);
+		this.save()
+			.then(user => {
+				resolve(user);
+			})
+			.catch(err => reject(err));
+	});
+};
+
 UserSchema.methods.getAlarm = function(this: IUserSchema): Alarm[] {
 	return this.alarms.map(x => {
 		x.timeString = moment(x.createAt)
