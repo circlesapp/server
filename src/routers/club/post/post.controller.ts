@@ -95,7 +95,10 @@ export const Modification = function(req: Request, res: Response, next: NextFunc
 	if (!("_id" in data)) {
 		return next(new StatusError(HTTPRequestCode.BAD_REQUEST, "잘못된 요청"));
 	}
-	Post.findByID(data._id).then(post => {
+    Post.findByID(data._id).then(post => {
+        if(!post){
+            return next(new StatusError(HTTPRequestCode.NOT_FOUND, "존재하지 않는 글"))
+        }
 		if (!post.checkClub(club)) {
 			return next(new StatusError(HTTPRequestCode.BAD_REQUEST, "동아리 소속이 잘못 됨"));
 		}
