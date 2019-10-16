@@ -5,6 +5,7 @@ import SendRule, { StatusError, HTTPRequestCode } from "../../../modules/Send-Ru
 import * as fs from "fs";
 import Base64ToImage from "../../../modules/Base64-To-Image";
 import { IClubSchema, Permission } from "../../../schemas/Club";
+import { ObjectID } from "bson";
 
 /**
  * @description 글쓰기 라우터입니다.
@@ -54,6 +55,18 @@ export const Write = function(req: Request, res: Response, next: NextFunction) {
 			.catch(err => next(err));
 	}
 };
+export const GetPublicPostComments = function(req: Request, res: Response, next: NextFunction) {
+	let data = req.body._id as ObjectID;
+	Post.findOne({ _id: data }).then(post => {
+		if (post) {
+			post.getComments()
+				.then(comments => SendRule.response(res, HTTPRequestCode.OK, comments))
+				.catch(err => next(err));
+		} else {
+			return next(new StatusError(HTTPRequestCode.NOT_FOUND, "존재하지 않는 글"));
+		}
+	});
+};
 /**
  * @description 모든 공개 글을 반환하는 라우터 입니다.
  * @param {Request}req Express req
@@ -95,10 +108,10 @@ export const Modification = function(req: Request, res: Response, next: NextFunc
 	if (!("_id" in data)) {
 		return next(new StatusError(HTTPRequestCode.BAD_REQUEST, "잘못된 요청"));
 	}
-    Post.findByID(data._id).then(post => {
-        if(!post){
-            return next(new StatusError(HTTPRequestCode.NOT_FOUND, "존재하지 않는 글"))
-        }
+	Post.findByID(data._id).then(post => {
+		if (!post) {
+			return next(new StatusError(HTTPRequestCode.NOT_FOUND, "존재하지 않는 글"));
+		}
 		if (!post.checkClub(club)) {
 			return next(new StatusError(HTTPRequestCode.BAD_REQUEST, "동아리 소속이 잘못 됨"));
 		}

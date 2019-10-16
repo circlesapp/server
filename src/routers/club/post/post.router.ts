@@ -1,11 +1,12 @@
 import { Router } from "express";
 import PassportJWTAuth from "../../../modules/PassportJWT-Auth";
-import { Write, Modification, Delete, GetPublicPosts } from "./post.controller";
+import { Write, Modification, Delete, GetPublicPosts, GetPublicPostComments } from "./post.controller";
 
 const router = Router();
 
 // Routers
 router.post("/write", PassportJWTAuth.authenticate(), Write);
+router.get("/getPublicPostComments", GetPublicPostComments);
 router.get("/getPublicPosts", GetPublicPosts);
 router.post("/modification", PassportJWTAuth.authenticate(), Modification); // TODO:
 router.post("/delete", PassportJWTAuth.authenticate(), Delete); // TODO:

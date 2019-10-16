@@ -52,6 +52,7 @@ export interface IPostSchema extends IPost, Document {
 	 * @returns {string} 글이 몇 분 전에 써졌는지 반환합니다.
 	 */
 	getLastTime(): string;
+	getComments(): Promise<ICommentSchema[]>;
 	pushComment(user: IUserSchema, data: IComment): Promise<IPostSchema>;
 	removeComment(comment: ICommentSchema): Promise<IPostSchema>;
 	pushLike(user: IUserSchema): Promise<IPostSchema>;
@@ -92,7 +93,7 @@ const PostSchema: Schema = new Schema({
 	owner: { type: ObjectID, required: true, ref: "User" },
 	title: { type: String, required: true },
 	content: { type: String, required: true },
-	comments: { type: Array, default: [] },
+	comments: [{ type: ObjectID, ref: "Comment" }],
 	likes: { type: Array, default: [] },
 	imgPath: { type: Array, default: [] },
 	isPublic: { type: Boolean, default: false },
@@ -100,6 +101,16 @@ const PostSchema: Schema = new Schema({
 	timeString: { type: String }
 });
 
+PostSchema.methods.getComments = function(this: IPostSchema): Promise<ICommentSchema[]> {
+	return new Promise<ICommentSchema[]>((resolve, reject) => {
+		Comment.find({ _id: this.comments })
+			.populate("owner", "name imgPath")
+			.then(comments => {
+				resolve(comments);
+			})
+			.catch(err => reject(err));
+	});
+};
 PostSchema.methods.pushComment = function(this: IPostSchema, user: IUserSchema, data: IComment): Promise<IPostSchema> {
 	return new Promise<IPostSchema>((resolve, reject) => {
 		let comment = new Comment(data);
