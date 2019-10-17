@@ -6,6 +6,8 @@ import * as fs from "fs";
 import Base64ToImage from "../../../modules/Base64-To-Image";
 import { IClubSchema, Permission } from "../../../schemas/Club";
 import { ObjectID } from "bson";
+import Comment, { IComment, ICommentSchema } from "../../../schemas/Club/Post/Comment";
+import { Document } from "mongoose";
 
 /**
  * @description 글쓰기 라우터입니다.
@@ -168,4 +170,60 @@ export const Delete = function(req: Request, res: Response, next: NextFunction) 
 			})
 			.catch(err => next(err));
 	});
+};
+
+export const CommentWrite = function(req: Request, res: Response, next: NextFunction) {
+	let user = req.user as IUserSchema;
+	let club = (req as any).club as IClubSchema;
+	let data = req.body as IComment | Document;
+	if (!("_id" in data)) {
+		return next(new StatusError(HTTPRequestCode.BAD_REQUEST, "잘못된 요청"));
+	}
+	Post.findOne({ _id: data._id })
+		.then(post => {
+			if (post) {
+				post.pushComment(user, data as IComment)
+					.then(comment => {
+						SendRule.response(res, HTTPRequestCode.CREATE, comment, "댓글 작성 성공");
+					})
+					.catch(err => next(err));
+			} else {
+				return next(new StatusError(HTTPRequestCode.NOT_FOUND, "존재하지 않는 글"));
+			}
+		})
+		.catch(err => next(err));
+};
+
+export const CommentDelete = function(req: Request, res: Response, next: NextFunction) {
+	let user = req.user as IUserSchema;
+	let club = (req as any).club as IClubSchema;
+	let data = req.body as ICommentSchema | { _id: ObjectID; _postid: ObjectID };
+	if (!("_id" in data && "_postid" in data)) {
+		return next(new StatusError(HTTPRequestCode.BAD_REQUEST, "잘못된 요청"));
+	}
+	Post.findOne({ _id: data._postid })
+		.then(post => {
+			if (post) {
+				Comment.findOne({ _id: data._id })
+					.then(comment => {
+						if (comment) {
+							if (comment.ownerCheck(user)) {
+								post.removeComment(comment)
+									.then(comment => {
+										SendRule.response(res, HTTPRequestCode.OK, comment, "댓글 삭제 성공");
+									})
+									.catch(err => next(err));
+							} else {
+								return SendRule.response(res, HTTPRequestCode.FORBIDDEN, undefined, "권한 없음");
+							}
+						} else {
+							return next(new StatusError(HTTPRequestCode.NOT_FOUND, "존재하지 않는 댓글"));
+						}
+					})
+					.catch(err => next(err));
+			} else {
+				return next(new StatusError(HTTPRequestCode.NOT_FOUND, "존재하지 않는 글"));
+			}
+		})
+		.catch(err => next(err));
 };
