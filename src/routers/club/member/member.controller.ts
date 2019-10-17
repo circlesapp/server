@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { IUserSchema } from "../../../schemas/User";
-import SendRule, { StatusError, HTTPRequestCode } from "../../../modules/Send-Rule";
-import { IClubSchema, Permission } from "../../../schemas/Club";
+import SendRule, {  HTTPRequestCode } from "../../../modules/Send-Rule";
+import { IClubSchema } from "../../../schemas/Club";
 
 /**
  * @description 모든 공개 글을 반환하는 라우터 입니다.

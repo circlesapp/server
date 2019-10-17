@@ -1,6 +1,6 @@
 import { NextFunction, Response, Request } from "express";
 import { IUserSchema } from "../../../schemas/User";
-import { IClubSchema, Permission } from "../../../schemas/Club";
+import { IClubSchema } from "../../../schemas/Club";
 import Applicant, { IApplicant } from "../../../schemas/Club/Applicant";
 import SendRule, { HTTPRequestCode, StatusError } from "../../../modules/Send-Rule";
 

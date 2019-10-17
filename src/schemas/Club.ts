@@ -1,8 +1,8 @@
 import { Document, Schema, Model, model } from "mongoose";
 import { ObjectID } from "bson";
-import Budget, { IBudgetSchema, IBudget } from "./Club/Budget";
-import Award, { IAwardSchema, IAward } from "./Club/Award";
-import Applicant, { IApplicantSchema, IApplicant } from "./Club/Applicant";
+import Budget, { IBudgetSchema } from "./Club/Budget";
+import Award, { IAwardSchema } from "./Club/Award";
+import Applicant, { IApplicantSchema } from "./Club/Applicant";
 import { StatusError } from "../modules/Send-Rule";
 import User, { IUserSchema } from "./User";
 import Post, { IPostSchema } from "./Club/Post";
