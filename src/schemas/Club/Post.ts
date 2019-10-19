@@ -55,8 +55,7 @@ export interface IPostSchema extends IPost, Document {
 	getComments(): Promise<ICommentSchema[]>;
 	pushComment(user: IUserSchema, data: IComment): Promise<IPostSchema>;
 	removeComment(comment: ICommentSchema): Promise<IPostSchema>;
-	pushLike(user: IUserSchema): Promise<IPostSchema>;
-	removeLike(user: IUserSchema): Promise<IPostSchema>;
+	toggleLike(user: IUserSchema): Promise<IPostSchema>;
 }
 /**
  * @description Post 모델에 대한 정적 메서드 ( 테이블 )
@@ -142,30 +141,14 @@ PostSchema.methods.removeComment = function(this: IPostSchema, comment: IComment
 			.catch(err => reject(err));
 	});
 };
-PostSchema.methods.pushLike = function(this: IPostSchema, user: IUserSchema): Promise<IPostSchema> {
+PostSchema.methods.toggleLike = function(this: IPostSchema, user: IUserSchema): Promise<IPostSchema> {
 	return new Promise<IPostSchema>((resolve, reject) => {
 		let idx = this.likes.indexOf(user._id);
-		if (idx == -1) {
-			this.likes.push(user._id);
-			this.save()
-				.then(post => resolve(post))
-				.catch(err => reject(err));
-		} else {
-			reject(new StatusError(400, "이미 추천했습니다."));
-		}
-	});
-};
-PostSchema.methods.removeLike = function(this: IPostSchema, user: IUserSchema): Promise<IPostSchema> {
-	return new Promise<IPostSchema>((resolve, reject) => {
-		let idx = this.likes.indexOf(user._id);
-		if (idx != -1) {
-			this.likes.splice(idx, 1);
-			this.save()
-				.then(post => resolve(post))
-				.catch(err => reject(err));
-		} else {
-			reject(new StatusError(400, "이미 추천을 해제했습니다."));
-		}
+		if (idx == -1) this.likes.push(user._id);
+		else this.likes.splice(idx, 1);
+		this.save()
+			.then(post => resolve(post))
+			.catch(err => reject(err));
 	});
 };
 
