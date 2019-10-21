@@ -172,6 +172,28 @@ export const Delete = function(req: Request, res: Response, next: NextFunction) 
 	});
 };
 
+export const ToggleLike = function(req: Request, res: Response, next: NextFunction) {
+	let user = req.user as IUserSchema;
+	let club = (req as any).club as IClubSchema;
+	let data = req.body;
+	if (!("_id" in data)) {
+		return next(new StatusError(HTTPRequestCode.BAD_REQUEST, "잘못된 요청"));
+	}
+	Post.findOne({ _id: data._id })
+		.then(post => {
+			if (post) {
+				post.toggleLike(user)
+					.then(post => {
+						SendRule.response(res, HTTPRequestCode.OK, null, "추천 성공");
+					})
+					.catch(err => next(err));
+			} else {
+				return next(new StatusError(HTTPRequestCode.NOT_FOUND, "존재하지 않는 글"));
+			}
+		})
+		.catch(err => next(err));
+};
+
 export const CommentWrite = function(req: Request, res: Response, next: NextFunction) {
 	let user = req.user as IUserSchema;
 	let club = (req as any).club as IClubSchema;
