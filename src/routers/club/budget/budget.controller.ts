@@ -32,3 +32,26 @@ export const GetPublicBudgets = function(req: Request, res: Response, next: Next
 		})
 		.catch(err => next(err));
 };
+
+export const Delete = function(req: Request, res: Response, next: NextFunction) {
+	let user = req.user as IUserSchema;
+	let club = (req as any).club as IClubSchema;
+	let data = req.body;
+
+	if (!user.isJoinClub(club)) {
+		return next(new StatusError(HTTPRequestCode.FORBIDDEN, "소속된 동아리가 아님"));
+	} else if (!club.checkPermission(Permission.ACCESS_BUDGETS_DELETE, user)) {
+		return next(new StatusError(HTTPRequestCode.FORBIDDEN, "동아리 내부 권한 없음"));
+	}
+	if (!("_id" in data)) {
+		return next(new StatusError(HTTPRequestCode.BAD_REQUEST, "잘못된 요청"));
+	}
+	Budget.findOne({ _id: data._id }).then(award => {
+		award
+			.remove()
+			.then(award => {
+				SendRule.response(res, HTTPRequestCode.OK, award, "글 제거 성공");
+			})
+			.catch(err => next(err));
+	});
+};
