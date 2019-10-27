@@ -125,7 +125,7 @@ export interface IUserModel extends Model<IUserSchema> {
 }
 
 const UserSchema: Schema = new Schema({
-	clubs: { type: Array, required: true },
+	clubs: [{ type: ObjectID, ref: "Club" }],
 	email: { type: String, required: true, unique: true },
 	password: { type: String, required: true },
 	name: { type: String, required: true },
@@ -228,7 +228,7 @@ UserSchema.methods.joinClub = function(this: IUserSchema, club: IClubSchema): Pr
 	});
 };
 UserSchema.methods.isJoinClub = function(this: IUserSchema, club: IClubSchema): boolean {
-	return this.clubs.filter(_id => club._id.equals(_id)).length > 0 && club.members.filter(member => member.user.equals(this._id)).length > 0;
+	return this.clubs.findIndex((club: any) => club._id.equals(club._id)) != -1;
 };
 
 UserSchema.statics.dataCheck = function(this: IUserModel, data: any): boolean {
@@ -306,6 +306,7 @@ UserSchema.statics.createUser = function(this: IUserModel, data: IUser): Promise
 UserSchema.statics.findByEmail = function(this: IUserModel, email: string): Promise<IUserSchema> {
 	return new Promise<IUserSchema>((resolve, reject) => {
 		this.findOne({ email })
+			.populate("clubs", "name imgPath")
 			.then((data: IUserSchema) => {
 				if (data) {
 					resolve(data);
