@@ -228,7 +228,7 @@ UserSchema.methods.joinClub = function(this: IUserSchema, club: IClubSchema): Pr
 	});
 };
 UserSchema.methods.isJoinClub = function(this: IUserSchema, club: IClubSchema): boolean {
-	return this.clubs.findIndex((club: any) => club._id.equals(club._id)) != -1;
+	return this.clubs.findIndex((c: any) => c._id.equals(club._id)) != -1;
 };
 
 UserSchema.statics.dataCheck = function(this: IUserModel, data: any): boolean {

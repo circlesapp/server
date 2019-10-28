@@ -54,7 +54,7 @@ export const Modification = function(req: Request, res: Response, next: NextFunc
 
 export const GetMyApplicant = function(req: Request, res: Response, next: NextFunction) {
 	let user = req.user as IUserSchema;
-	let club = (req as any).club as IClubSchema;
+    let club = (req as any).club as IClubSchema;
 	if (user.isJoinClub(club)) {
 		return next(new StatusError(HTTPRequestCode.BAD_REQUEST, "이미 가입 된 동아리"));
 	} else {
