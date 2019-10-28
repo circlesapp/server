@@ -1,7 +1,7 @@
 import { Response, Request, NextFunction } from "express";
 import { IUserSchema } from "../../schemas/User";
 import Club from "../../schemas/Club";
-import SendRule from "../../modules/Send-Rule";
+import SendRule, { StatusError, HTTPRequestCode } from "../../modules/Send-Rule";
 import Base64ToImage from "../../modules/Base64-To-Image";
 import * as fs from "fs";
 

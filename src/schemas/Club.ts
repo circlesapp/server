@@ -39,6 +39,8 @@ export interface IClub {
 	name: string; // 동아리 이름
 	owner: ObjectID;
 	imgPath: string;
+	school: string;
+	introduction: string;
 	members?: Member[]; // 동아리 회원
 	ranks?: Rank[]; // 동아리 계급들
 	createAt?: Date;
@@ -101,6 +103,8 @@ const ClubSchema: Schema = new Schema({
 	name: { type: String, required: true, unique: true },
 	owner: { type: Schema.Types.ObjectId, required: true, ref: "User" },
 	imgPath: { type: String, default: "" },
+	school: { type: String, default: "" },
+	introduction: { type: String, default: "" },
 	members: { type: Array, default: [] },
 	ranks: { type: Array, default: defaultRank },
 	createAt: { type: Date, default: Date.now }
