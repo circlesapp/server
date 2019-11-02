@@ -16,7 +16,6 @@ moment.locale("ko");
 export interface IPost {
 	club?: ObjectID; // 소속동아리
 	owner?: ObjectID; // 주인
-	title: string; // 제목
 	content: string; // 내용
 	comments: ObjectID[]; // 댓글들 ICommentSchema
 	likes: ObjectID[]; // 좋아요들 IUserSchema
@@ -90,7 +89,6 @@ export interface IPostModel extends Model<IPostSchema> {
 const PostSchema: Schema = new Schema({
 	club: { type: ObjectID, required: true },
 	owner: { type: ObjectID, required: true, ref: "User" },
-	title: { type: String, required: true },
 	content: { type: String, required: true },
 	comments: [{ type: ObjectID, ref: "Comment" }],
 	likes: { type: Array, default: [] },
@@ -174,7 +172,7 @@ PostSchema.methods.getLastTime = function(this: IPostSchema): string {
 };
 
 PostSchema.statics.dataCheck = function(this: IPostSchema, data: any): boolean {
-	return "title" in data && "content" in data;
+	return "content" in data;
 };
 PostSchema.statics.createPost = function(this: IPostModel, club: IClubSchema, owner: IUserSchema, data: IPost): Promise<IPostSchema> {
 	return new Promise((resolve, reject) => {
