@@ -49,8 +49,9 @@ export interface IClub {
  * @description User 스키마에 대한 메서드 ( 레코드 )
  */
 export interface IClubSchema extends IClub, Document {
-	changeInfomation(data :IClub): Promise<IClubSchema>;
+	changeInfomation(data: IClub): Promise<IClubSchema>;
 	getClubMembers(): Promise<IUserSchema[]>;
+	getDetailMembers(): Promise<Member[]>;
 	getClubPosts(): Promise<IPostSchema[]>;
 	getClubBudgets(): Promise<IBudgetSchema[]>;
 	getClubAwards(): Promise<IAwardSchema[]>;
@@ -106,7 +107,7 @@ const ClubSchema: Schema = new Schema({
 	imgPath: { type: String, default: "" },
 	school: { type: String, default: "" },
 	introduction: { type: String, default: "" },
-	members: { type: Array, default: [] },
+	members: { type: Array, default: [], ref: "User" },
 	ranks: { type: Array, default: defaultRank },
 	createAt: { type: Date, default: Date.now }
 });
@@ -126,6 +127,14 @@ ClubSchema.methods.getClubMembers = function(this: IClubSchema): Promise<IUserSc
 			.then(users => {
 				resolve(users);
 			})
+			.catch(err => reject(err));
+	});
+};
+ClubSchema.methods.getDetailMembers = function(this: IClubSchema): Promise<Member[]> {
+	return new Promise<Member[]>((resolve, reject) => {
+		this.populate({ path: "members.user", model: User, select: "name imgPath" })
+			.execPopulate()
+			.then(club => resolve(club.members))
 			.catch(err => reject(err));
 	});
 };

@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { IUserSchema } from "../../../schemas/User";
-import SendRule, {  HTTPRequestCode } from "../../../modules/Send-Rule";
+import SendRule, { HTTPRequestCode } from "../../../modules/Send-Rule";
 import { IClubSchema } from "../../../schemas/Club";
 
 /**
@@ -17,4 +17,17 @@ export const GetPublicMembers = function(req: Request, res: Response, next: Next
 			SendRule.response(res, HTTPRequestCode.OK, users);
 		})
 		.catch(err => next(err));
+};
+
+export const GetDetailMembers = function(req: Request, res: Response, next: NextFunction) {
+	let user = req.user as IUserSchema;
+
+	let club = (req as any).club as IClubSchema;
+	if (club.checkAdmin(user))
+		club.getDetailMembers()
+			.then(members => {
+				SendRule.response(res, HTTPRequestCode.OK, members);
+			})
+			.catch(err => next(err));
+	else SendRule.response(res, HTTPRequestCode.FORBIDDEN, undefined, "권한 없음");
 };
