@@ -8,20 +8,20 @@ import User, { IUserSchema } from "./User";
 import Post, { IPostSchema } from "./Club/Post";
 
 export enum Permission {
-	ACCESS_POST_CREATE=1, // 글 생성 권한
-	ACCESS_POST_READ=2, // 글 읽기 권한
-	ACCESS_POST_DELETE=3, // 글 삭제 권한
+	ACCESS_POST_CREATE = 1, // 글 생성 권한
+	ACCESS_POST_READ = 2, // 글 읽기 권한
+	ACCESS_POST_DELETE = 3, // 글 삭제 권한
 
-	ACCESS_AWARDS_CREATE=11, // 수상 생성 권한
-	ACCESS_AWARDS_READ=12, // 수상 읽기 권한
-	ACCESS_AWARDS_DELETE=13, // 수상 삭제 권한
+	ACCESS_AWARDS_CREATE = 11, // 수상 생성 권한
+	ACCESS_AWARDS_READ = 12, // 수상 읽기 권한
+	ACCESS_AWARDS_DELETE = 13, // 수상 삭제 권한
 
-	ACCESS_BUDGETS_CREATE=21, // 에산서 생성 권한
-	ACCESS_BUDGETS_READ=22, // 예산서 읽기 권한
-	ACCESS_BUDGETS_DELETE=23, // 예산서 삭제 권한
+	ACCESS_BUDGETS_CREATE = 21, // 에산서 생성 권한
+	ACCESS_BUDGETS_READ = 22, // 예산서 읽기 권한
+	ACCESS_BUDGETS_DELETE = 23, // 예산서 삭제 권한
 
-	ACCESS_APPLYCANT_READ=31, // 지원서 읽기 권한
-	ACCESS_APPLYCANT_DELETE=32 // 지원서 삭제 권한
+	ACCESS_APPLYCANT_READ = 31, // 지원서 읽기 권한
+	ACCESS_APPLYCANT_DELETE = 32 // 지원서 삭제 권한
 }
 export interface Member {
 	user: ObjectID; // 유저 아이디
@@ -49,6 +49,7 @@ export interface IClub {
  * @description User 스키마에 대한 메서드 ( 레코드 )
  */
 export interface IClubSchema extends IClub, Document {
+	changeInfomation(data :IClub): Promise<IClubSchema>;
 	getClubMembers(): Promise<IUserSchema[]>;
 	getClubPosts(): Promise<IPostSchema[]>;
 	getClubBudgets(): Promise<IBudgetSchema[]>;
@@ -109,6 +110,13 @@ const ClubSchema: Schema = new Schema({
 	ranks: { type: Array, default: defaultRank },
 	createAt: { type: Date, default: Date.now }
 });
+
+ClubSchema.methods.changeInfomation = function(this: IClubSchema, data: IClub): Promise<IClubSchema> {
+	Object.keys(data).forEach(x => {
+		if (x in this && (x != "owner" && x != "createAt" && x != "_id" && x != "imgPath")) this[x] = data[x] || this[x];
+	});
+	return this.save();
+};
 
 ClubSchema.methods.getClubMembers = function(this: IClubSchema): Promise<IUserSchema[]> {
 	return new Promise<IUserSchema[]>((resolve, reject) => {

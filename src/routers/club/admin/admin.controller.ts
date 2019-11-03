@@ -3,8 +3,7 @@ import { IUserSchema } from "../../../schemas/User";
 import Base64ToImage from "../../../modules/Base64-To-Image";
 import { Request, Response, NextFunction } from "express";
 import SendRule, { HTTPRequestCode, StatusError } from "../../../modules/Send-Rule";
-import { IClubSchema } from "../../../schemas/Club";
-
+import { IClubSchema, IClub } from "../../../schemas/Club";
 
 export const ChangeClubImage = (req: Request, res: Response, next: NextFunction) => {
 	let user: IUserSchema = req.user as IUserSchema;
@@ -32,6 +31,21 @@ export const ChangeClubImage = (req: Request, res: Response, next: NextFunction)
 		} else {
 			next(new StatusError(HTTPRequestCode.BAD_REQUEST, "잘못된 요청"));
 		}
+	} else {
+		return SendRule.response(res, HTTPRequestCode.FORBIDDEN, undefined, "권한 없음");
+	}
+};
+export const Modification = function(req: Request, res: Response, next: NextFunction) {
+	let user = req.user as IUserSchema;
+	let club = (req as any).club as IClubSchema;
+	let data = req.body as IClub;
+
+	if (club.checkAdmin(user)) {
+		club.changeInfomation(data)
+			.then(club => {
+				SendRule.response(res, HTTPRequestCode.CREATE, user, "동아리 대표 사진 수정 성공");
+			})
+			.catch(err => next(err));
 	} else {
 		return SendRule.response(res, HTTPRequestCode.FORBIDDEN, undefined, "권한 없음");
 	}
