@@ -192,7 +192,7 @@ ClubSchema.methods.checkPermission = function(this: IClubSchema, permission: Per
 		let userMember = this.members.find(member => user._id.equals(member.user));
 		let userRank = this.ranks.find(rank => rank.id == userMember.rank);
 		if (userRank.isAdmin == true) return true;
-		else return userRank.permission.indexOf(permission) != -1;
+		else return userRank.permission.map((x: any) => parseInt(x)).indexOf(permission) != -1;
 	} else {
 		return false;
 	}

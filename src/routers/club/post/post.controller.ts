@@ -88,7 +88,7 @@ export const GetPublicPosts = function(req: Request, res: Response, next: NextFu
 					x.timeString = x.getLastTime();
 					return x;
 				})
-			);
+            );
 		})
 		.catch(err => next(err));
 };
