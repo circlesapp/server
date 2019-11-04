@@ -124,8 +124,8 @@ ClubSchema.methods.changeInfomation = function(this: IClubSchema, data: IClub): 
 				this[x] = data[x].map(y => {
 					y.user = new ObjectId(y.user);
 					return y;
-                });
-                console.log(this[x])
+				});
+				console.log(this[x]);
 			} else this[x] = data[x] || this[x];
 		}
 	});
