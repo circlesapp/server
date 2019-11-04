@@ -97,6 +97,20 @@ export const Accept = function(req: Request, res: Response, next: NextFunction) 
 	} else {
 		return SendRule.response(res, HTTPRequestCode.FORBIDDEN, undefined, "권한 없음");
 	}
+};
 
-	// club.
+export const Reject = function(req: Request, res: Response, next: NextFunction) {
+	let user = req.user as IUserSchema;
+	let club = (req as any).club as IClubSchema;
+	let data = req.body;
+
+	if (club.checkAdmin(user)) {
+		club.rejectApplicant(data._id)
+			.then(applicant => {
+				SendRule.response(res, HTTPRequestCode.CREATE, applicant, "지원서 거절 성공");
+			})
+			.catch(err => next(err));
+	} else {
+		return SendRule.response(res, HTTPRequestCode.FORBIDDEN, undefined, "권한 없음");
+	}
 };

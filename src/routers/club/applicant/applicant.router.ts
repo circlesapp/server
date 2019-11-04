@@ -1,6 +1,6 @@
 import { Router } from "express";
 import PassportJWTAuth from "../../../modules/PassportJWT-Auth";
-import { Apply, Modification, GetMyApplicant, GetClubApplications, Accept } from "./applicant.controller";
+import { Apply, Modification, GetMyApplicant, GetClubApplications, Accept, Reject } from "./applicant.controller";
 
 const router = Router();
 
@@ -11,4 +11,5 @@ router.post("/getClubApplications", PassportJWTAuth.authenticate(), GetClubAppli
 router.get("/getMyApplicant", PassportJWTAuth.authenticate(), GetMyApplicant);
 
 router.post("/accept", PassportJWTAuth.authenticate(), Accept);
+router.post("/reject", PassportJWTAuth.authenticate(), Reject);
 export default router;

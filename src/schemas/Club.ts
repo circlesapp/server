@@ -62,6 +62,7 @@ export interface IClubSchema extends IClub, Document {
 	checkAdmin(user: IUserSchema);
 
 	acceptApplicant(applicantId: ObjectID): Promise<IApplicantSchema>;
+	rejectApplicant(applicantId: ObjectID): Promise<IApplicantSchema>;
 }
 /**
  * @description User 모델에 대한 정적 메서드 ( 테이블 )
@@ -219,6 +220,23 @@ ClubSchema.methods.acceptApplicant = function(this: IClubSchema, applicantId: Ob
 										resolve(applicant);
 									})
 									.catch(err => reject(err));
+							})
+							.catch(err => reject(err));
+					})
+					.catch(err => reject(err));
+			})
+			.catch(err => reject(err));
+	});
+};
+ClubSchema.methods.rejectApplicant = function(this: IClubSchema, applicantId: ObjectID): Promise<IApplicantSchema> {
+	return new Promise<IApplicantSchema>((resolve, reject) => {
+		Applicant.findOne({ _id: applicantId })
+			.then(applicant => {
+				User.findById(applicant.owner)
+					.then(user => {
+						user.removeApplicant(applicant)
+							.then(user => {
+								resolve(applicant);
 							})
 							.catch(err => reject(err));
 					})

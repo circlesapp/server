@@ -29,7 +29,7 @@ export interface IApplicantModel extends Model<IApplicantSchema> {
 }
 
 const ApplicantSchema: Schema = new Schema({
-	club: { type: ObjectID, required: true },
+	club: { type: ObjectID, required: true, ref: "Club" },
 	owner: { type: ObjectID, required: true, ref: "User" },
 	name: { type: String, required: true, default: "" },
 	email: { type: String, required: true, default: "" },
