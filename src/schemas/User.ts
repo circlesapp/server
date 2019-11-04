@@ -75,6 +75,7 @@ export interface IUserSchema extends IUser, Document {
 	pushAlarm(alarm: Alarm): Promise<IUserSchema>;
 	removeAlarm(alarm: Alarm): Promise<IUserSchema>;
 	isJoinClub(club: IClubSchema): boolean;
+	joinClub(club: IClubSchema): Promise<IUserSchema>;
 }
 /**
  * @description User 모델에 대한 정적 메서드 ( 테이블 )
@@ -182,9 +183,14 @@ UserSchema.methods.pushApplicant = function(this: IUserSchema, applicant: IAppli
 UserSchema.methods.removeApplicant = function(this: IUserSchema, applicant: IApplicantSchema): Promise<IUserSchema> {
 	return new Promise<IUserSchema>((resolve, reject) => {
 		this.applicants.splice(this.applicants.indexOf(applicant._id), 1);
-		this.save()
-			.then(user => {
-				resolve(user);
+		applicant
+			.remove()
+			.then(() => {
+				this.save()
+					.then(user => {
+						resolve(user);
+					})
+					.catch(err => reject(err));
 			})
 			.catch(err => reject(err));
 	});
@@ -214,7 +220,7 @@ UserSchema.methods.joinClub = function(this: IUserSchema, club: IClubSchema): Pr
 			this.clubs.push(club._id);
 			this.save()
 				.then(user => {
-					club.members.push({ rank: "default", user: this._id });
+					club.members.push({ rank: 1, user: this._id });
 					club.save()
 						.then(club => {
 							resolve(user);

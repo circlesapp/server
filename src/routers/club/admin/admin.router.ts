@@ -6,6 +6,6 @@ const router = Router();
 
 // Routers
 router.post("/changeClubImage", PassportJWTAuth.authenticate(), ChangeClubImage);
-router.post("/Modification", PassportJWTAuth.authenticate(), Modification);
+router.post("/modification", PassportJWTAuth.authenticate(), Modification);
 
 export default router;

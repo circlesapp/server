@@ -43,7 +43,7 @@ export const Modification = function(req: Request, res: Response, next: NextFunc
 	if (club.checkAdmin(user)) {
 		club.changeInfomation(data)
 			.then(club => {
-				SendRule.response(res, HTTPRequestCode.CREATE, user, "동아리 대표 사진 수정 성공");
+				SendRule.response(res, HTTPRequestCode.CREATE, club, "동아리 정보 수정 성공");
 			})
 			.catch(err => next(err));
 	} else {

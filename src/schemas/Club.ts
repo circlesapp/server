@@ -1,8 +1,8 @@
 import { Document, Schema, Model, model } from "mongoose";
-import { ObjectID } from "bson";
+import { ObjectID, ObjectId } from "bson";
 import Budget, { IBudgetSchema } from "./Club/Budget";
 import Award, { IAwardSchema } from "./Club/Award";
-import Applicant, { IApplicantSchema } from "./Club/Applicant";
+import Applicant, { IApplicantSchema, IApplicant } from "./Club/Applicant";
 import { StatusError } from "../modules/Send-Rule";
 import User, { IUserSchema } from "./User";
 import Post, { IPostSchema } from "./Club/Post";
@@ -25,9 +25,10 @@ export enum Permission {
 }
 export interface Member {
 	user: ObjectID; // 유저 아이디
-	rank: string; // 랭크 이름
+	rank: number; // 랭크 코드
 }
 export interface Rank {
+	id: number;
 	name: string; // 랭크 이름
 	isAdmin?: boolean; // 어드민 권한
 	permission: Permission[]; // 권한들
@@ -59,6 +60,8 @@ export interface IClubSchema extends IClub, Document {
 
 	checkPermission(permission: Permission, user: IUserSchema);
 	checkAdmin(user: IUserSchema);
+
+	acceptApplicant(applicantId: ObjectID): Promise<IApplicantSchema>;
 }
 /**
  * @description User 모델에 대한 정적 메서드 ( 테이블 )
@@ -91,11 +94,13 @@ export interface IClubModel extends Model<IClubSchema> {
 }
 const defaultRank: Rank[] = [
 	{
+		id: 0,
 		name: "admin",
 		isAdmin: true,
 		permission: []
 	},
 	{
+		id: 1,
 		name: "default",
 		isAdmin: false,
 		permission: [Permission.ACCESS_AWARDS_READ, Permission.ACCESS_BUDGETS_READ, Permission.ACCESS_POST_CREATE, Permission.ACCESS_POST_READ, Permission.ACCESS_POST_DELETE]
@@ -114,7 +119,15 @@ const ClubSchema: Schema = new Schema({
 
 ClubSchema.methods.changeInfomation = function(this: IClubSchema, data: IClub): Promise<IClubSchema> {
 	Object.keys(data).forEach(x => {
-		if (x in this && (x != "owner" && x != "createAt" && x != "_id" && x != "imgPath")) this[x] = data[x] || this[x];
+		if (x in this && (x != "owner" && x != "createAt" && x != "_id" && x != "imgPath")) {
+			if (x == "members") {
+				this[x] = data[x].map(y => {
+					y.user = new ObjectId(y.user);
+					return y;
+                });
+                console.log(this[x])
+			} else this[x] = data[x] || this[x];
+		}
 	});
 	return this.save();
 };
@@ -168,6 +181,7 @@ ClubSchema.methods.getClubAwards = function(this: IClubSchema): Promise<IAwardSc
 ClubSchema.methods.getClubApplicants = function(this: IClubSchema): Promise<IApplicantSchema[]> {
 	return new Promise<IApplicantSchema[]>((resolve, reject) => {
 		Applicant.find({ club: this._id })
+			.populate("owner", "name imgPath")
 			.then(applicants => resolve(applicants))
 			.catch(err => reject(err));
 	});
@@ -175,8 +189,8 @@ ClubSchema.methods.getClubApplicants = function(this: IClubSchema): Promise<IApp
 
 ClubSchema.methods.checkPermission = function(this: IClubSchema, permission: Permission, user: IUserSchema): boolean {
 	if (user.isJoinClub(this)) {
-		let userMember = this.members.find(member => member.user.equals(user._id));
-		let userRank = this.ranks.find(rank => rank.name == userMember.rank);
+		let userMember = this.members.find(member => user._id.equals(member.user));
+		let userRank = this.ranks.find(rank => rank.id == userMember.rank);
 		if (userRank.isAdmin == true) return true;
 		else return userRank.permission.indexOf(permission) != -1;
 	} else {
@@ -185,12 +199,33 @@ ClubSchema.methods.checkPermission = function(this: IClubSchema, permission: Per
 };
 ClubSchema.methods.checkAdmin = function(this: IClubSchema, user: IUserSchema): boolean {
 	if (user.isJoinClub(this)) {
-		let userMember = this.members.find(member => member.user.equals(user._id));
-		let userRank = this.ranks.find(rank => rank.name == userMember.rank);
+		let userMember = this.members.find(member => user._id.equals(member.user));
+		let userRank = this.ranks.find(rank => rank.id == userMember.rank);
 		return userRank.isAdmin;
 	} else {
 		return false;
 	}
+};
+ClubSchema.methods.acceptApplicant = function(this: IClubSchema, applicantId: ObjectID): Promise<IApplicantSchema> {
+	return new Promise<IApplicantSchema>((resolve, reject) => {
+		Applicant.findOne({ _id: applicantId })
+			.then(applicant => {
+				User.findById(applicant.owner)
+					.then(user => {
+						user.removeApplicant(applicant)
+							.then(user => {
+								user.joinClub(this)
+									.then(user => {
+										resolve(applicant);
+									})
+									.catch(err => reject(err));
+							})
+							.catch(err => reject(err));
+					})
+					.catch(err => reject(err));
+			})
+			.catch(err => reject(err));
+	});
 };
 
 ClubSchema.statics.createClub = function(this: IClubModel, owner: IUserSchema, data: IClub): Promise<IClubSchema> {
@@ -201,7 +236,7 @@ ClubSchema.statics.createClub = function(this: IClubModel, owner: IUserSchema, d
 				club.owner = owner._id;
 				club.members.push({
 					user: owner._id,
-					rank: "admin"
+					rank: 0
 				});
 				club.save()
 					.then(club => {

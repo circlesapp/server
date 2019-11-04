@@ -1,5 +1,5 @@
 import { NextFunction, Response, Request } from "express";
-import { IUserSchema } from "../../../schemas/User";
+import User, { IUserSchema } from "../../../schemas/User";
 import { IClubSchema } from "../../../schemas/Club";
 import Applicant, { IApplicant } from "../../../schemas/Club/Applicant";
 import SendRule, { HTTPRequestCode, StatusError } from "../../../modules/Send-Rule";
@@ -51,10 +51,24 @@ export const Modification = function(req: Request, res: Response, next: NextFunc
 		}
 	});
 };
+//
+export const GetClubApplications = function(req: Request, res: Response, next: NextFunction) {
+	let user = req.user as IUserSchema;
+	let club = (req as any).club as IClubSchema;
+	if (club.checkAdmin(user)) {
+		club.getClubApplicants()
+			.then(applications => {
+				SendRule.response(res, HTTPRequestCode.CREATE, applications);
+			})
+			.catch(err => next(err));
+	} else {
+		return next(new StatusError(HTTPRequestCode.FORBIDDEN, "권한 없음"));
+	}
+};
 
 export const GetMyApplicant = function(req: Request, res: Response, next: NextFunction) {
 	let user = req.user as IUserSchema;
-    let club = (req as any).club as IClubSchema;
+	let club = (req as any).club as IClubSchema;
 	if (user.isJoinClub(club)) {
 		return next(new StatusError(HTTPRequestCode.BAD_REQUEST, "이미 가입 된 동아리"));
 	} else {
@@ -68,4 +82,21 @@ export const GetMyApplicant = function(req: Request, res: Response, next: NextFu
 			})
 			.catch(err => next(err));
 	}
+};
+export const Accept = function(req: Request, res: Response, next: NextFunction) {
+	let user = req.user as IUserSchema;
+	let club = (req as any).club as IClubSchema;
+	let data = req.body;
+
+	if (club.checkAdmin(user)) {
+		club.acceptApplicant(data._id)
+			.then(applicant => {
+				SendRule.response(res, HTTPRequestCode.CREATE, applicant, "지원서 수락 성공");
+			})
+			.catch(err => next(err));
+	} else {
+		return SendRule.response(res, HTTPRequestCode.FORBIDDEN, undefined, "권한 없음");
+	}
+
+	// club.
 };
