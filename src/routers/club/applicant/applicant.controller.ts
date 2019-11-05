@@ -51,7 +51,8 @@ export const Modification = function(req: Request, res: Response, next: NextFunc
 		}
 	});
 };
-//
+
+
 export const GetClubApplications = function(req: Request, res: Response, next: NextFunction) {
 	let user = req.user as IUserSchema;
 	let club = (req as any).club as IClubSchema;
@@ -75,7 +76,7 @@ export const GetMyApplicant = function(req: Request, res: Response, next: NextFu
 		Applicant.getApplicantByUser(club, user)
 			.then(applicant => {
 				if (applicant) {
-					SendRule.response(res, HTTPRequestCode.CREATE, applicant, "지원서 작성 성공");
+					SendRule.response(res, HTTPRequestCode.CREATE, applicant);
 				} else {
 					return next(new StatusError(HTTPRequestCode.NOT_FOUND, "작성 된 지원서가 없음"));
 				}

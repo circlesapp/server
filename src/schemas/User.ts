@@ -130,7 +130,7 @@ const UserSchema: Schema = new Schema({
 	email: { type: String, required: true, unique: true },
 	password: { type: String, required: true },
 	name: { type: String, required: true },
-	applicants: { type: Array, default: [] },
+	applicants: [{ type: ObjectID, ref: "Applicant" }],
 	alarm: { type: Array, default: [] },
 	imgPath: { type: String, default: "" },
 	lastLogin: { type: Date, default: Date.now },

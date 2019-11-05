@@ -58,8 +58,14 @@ export const Login = (req: Request, res: Response, next: NextFunction) => {
  * @param {Response}res Express res
  * @param {NextFunction}next Express next
  */
-export const GetProfile = (req: Request, res: Response) => {
-	SendRule.response(res, 200, req.user);
+export const GetProfile = (req: Request, res: Response, next: NextFunction) => {
+	(req.user as IUserSchema)
+		.populate({ path: "applicants", select: "createAt club", populate: { path: "club", select: "imgPath name" } })
+		.execPopulate()
+		.then(user => {
+			SendRule.response(res, 200, user);
+		})
+		.catch(err => next(err));
 };
 
 /**
