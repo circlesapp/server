@@ -88,7 +88,7 @@ export const GetPublicPosts = function(req: Request, res: Response, next: NextFu
 					x.timeString = x.getLastTime();
 					return x;
 				})
-            );
+			);
 		})
 		.catch(err => next(err));
 };
@@ -140,8 +140,6 @@ export const Delete = function(req: Request, res: Response, next: NextFunction) 
 
 	if (!user.isJoinClub(club)) {
 		return next(new StatusError(HTTPRequestCode.FORBIDDEN, "소속된 동아리가 아님"));
-	} else if (!club.checkPermission(Permission.ACCESS_POST_DELETE, user)) {
-		return next(new StatusError(HTTPRequestCode.FORBIDDEN, "동아리 내부 권한 없음"));
 	}
 	if (!("_id" in data)) {
 		return next(new StatusError(HTTPRequestCode.BAD_REQUEST, "잘못된 요청"));
@@ -150,7 +148,7 @@ export const Delete = function(req: Request, res: Response, next: NextFunction) 
 		if (!post.checkClub(club)) {
 			return next(new StatusError(HTTPRequestCode.BAD_REQUEST, "동아리 소속이 잘못 됨"));
 		}
-		if (!(post.checkOwner(user) || club.checkAdmin(user))) {
+		if (!(post.checkOwner(user) || club.checkAdmin(user) || club.checkPermission(Permission.ACCESS_POST_DELETE, user))) {
 			return SendRule.response(res, HTTPRequestCode.FORBIDDEN, undefined, "권한 없음");
 		}
 		post.removePost()
@@ -197,14 +195,14 @@ export const ToggleLike = function(req: Request, res: Response, next: NextFuncti
 export const CommentWrite = function(req: Request, res: Response, next: NextFunction) {
 	let user = req.user as IUserSchema;
 	let club = (req as any).club as IClubSchema;
-	let data = req.body as IComment | Document;
+	let data = req.body as any;
 	if (!("_id" in data)) {
 		return next(new StatusError(HTTPRequestCode.BAD_REQUEST, "잘못된 요청"));
 	}
 	Post.findOne({ _id: data._id })
 		.then(post => {
 			if (post) {
-				post.pushComment(user, data as IComment)
+				post.pushComment(user, data.message as IComment)
 					.then(comment => {
 						SendRule.response(res, HTTPRequestCode.CREATE, comment, "댓글 작성 성공");
 					})

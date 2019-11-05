@@ -6,7 +6,7 @@ const router = Router();
 
 // Routers
 router.post("/write", PassportJWTAuth.authenticate(), Write);
-router.get("/getPublicPostComments", GetPublicPostComments);
+router.post("/getPublicPostComments", GetPublicPostComments);
 router.get("/getPublicPosts", GetPublicPosts);
 router.post("/modification", PassportJWTAuth.authenticate(), Modification);
 router.post("/delete", PassportJWTAuth.authenticate(), Delete);

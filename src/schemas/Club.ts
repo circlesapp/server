@@ -20,7 +20,8 @@ export enum Permission {
 	ACCESS_BUDGETS_READ = 22, // 예산서 읽기 권한
 	ACCESS_BUDGETS_DELETE = 23, // 예산서 삭제 권한
 
-	ACCESS_APPLYCANT_READ = 31, // 지원서 읽기 권한
+	ACCESS_APPLYCANT_ACCEPT = 31, // 지원서 수락 권한
+	ACCESS_APPLYCANT_READ = 32, // 지원서 삭제 권한
 	ACCESS_APPLYCANT_DELETE = 32 // 지원서 삭제 권한
 }
 export interface Member {

@@ -108,9 +108,11 @@ PostSchema.methods.getComments = function(this: IPostSchema): Promise<ICommentSc
 			.catch(err => reject(err));
 	});
 };
-PostSchema.methods.pushComment = function(this: IPostSchema, user: IUserSchema, data: IComment): Promise<IPostSchema> {
+PostSchema.methods.pushComment = function(this: IPostSchema, user: IUserSchema, message: string): Promise<IPostSchema> {
 	return new Promise<IPostSchema>((resolve, reject) => {
-		let comment = new Comment(data);
+		let comment = new Comment({
+			message
+		});
 		comment.owner = user._id;
 		comment
 			.save()

@@ -22,7 +22,7 @@ export interface ICommentSchema extends IComment, Document {
 export interface ICommentModel extends Model<ICommentSchema> {}
 
 const CommentSchema: Schema = new Schema({
-	owner: { type: ObjectID, required: true },
+	owner: { type: ObjectID, required: true, ref: "User" },
 	message: { type: String, default: "" },
 	createAt: { type: Date, default: Date.now }
 });

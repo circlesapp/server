@@ -1,6 +1,6 @@
 import { NextFunction, Response, Request } from "express";
 import User, { IUserSchema } from "../../../schemas/User";
-import { IClubSchema } from "../../../schemas/Club";
+import { IClubSchema, Permission } from "../../../schemas/Club";
 import Applicant, { IApplicant } from "../../../schemas/Club/Applicant";
 import SendRule, { HTTPRequestCode, StatusError } from "../../../modules/Send-Rule";
 
@@ -88,7 +88,7 @@ export const Accept = function(req: Request, res: Response, next: NextFunction) 
 	let club = (req as any).club as IClubSchema;
 	let data = req.body;
 
-	if (club.checkAdmin(user)) {
+	if (club.checkAdmin(user) || club.checkPermission(Permission.ACCESS_APPLYCANT_ACCEPT, user)) {
 		club.acceptApplicant(data._id)
 			.then(applicant => {
 				SendRule.response(res, HTTPRequestCode.CREATE, applicant, "지원서 수락 성공");
@@ -104,7 +104,7 @@ export const Reject = function(req: Request, res: Response, next: NextFunction) 
 	let club = (req as any).club as IClubSchema;
 	let data = req.body;
 
-	if (club.checkAdmin(user)) {
+	if (club.checkAdmin(user) || club.checkPermission(Permission.ACCESS_APPLYCANT_DELETE, user)) {
 		club.rejectApplicant(data._id)
 			.then(applicant => {
 				SendRule.response(res, HTTPRequestCode.CREATE, applicant, "지원서 거절 성공");
