@@ -6,6 +6,7 @@ import Applicant, { IApplicantSchema, IApplicant } from "./Club/Applicant";
 import { StatusError } from "../modules/Send-Rule";
 import User, { IUserSchema } from "./User";
 import Post, { IPostSchema } from "./Club/Post";
+import Calendar, { ICalendarSchema } from "./Club/Calendar";
 
 export enum Permission {
 	ACCESS_POST_CREATE = 1, // 글 생성 권한
@@ -21,8 +22,12 @@ export enum Permission {
 	ACCESS_BUDGETS_DELETE = 23, // 예산서 삭제 권한
 
 	ACCESS_APPLYCANT_ACCEPT = 31, // 지원서 수락 권한
-	ACCESS_APPLYCANT_READ = 32, // 지원서 삭제 권한
-	ACCESS_APPLYCANT_DELETE = 32 // 지원서 삭제 권한
+	ACCESS_APPLYCANT_READ = 32, // 지원서 읽기 권한
+	ACCESS_APPLYCANT_DELETE = 32, // 지원서 삭제 권한
+
+	ACCESS_CALENDAR_CREATE = 41, // 지원서 생성 권한
+	ACCESS_CALENDAR_READ = 42, // 지원서 읽기 권한
+	ACCESS_CALENDAR_DELETE = 42 // 지원서 삭제 권한
 }
 export interface Member {
 	user: ObjectID; // 유저 아이디
@@ -58,6 +63,7 @@ export interface IClubSchema extends IClub, Document {
 	getClubBudgets(): Promise<IBudgetSchema[]>;
 	getClubAwards(): Promise<IAwardSchema[]>;
 	getClubApplicants(): Promise<IApplicantSchema[]>;
+	getClubCalendars(): Promise<ICalendarSchema[]>;
 
 	checkPermission(permission: Permission, user: IUserSchema);
 	checkAdmin(user: IUserSchema);
@@ -185,6 +191,14 @@ ClubSchema.methods.getClubApplicants = function(this: IClubSchema): Promise<IApp
 		Applicant.find({ club: this._id })
 			.populate("owner", "name imgPath")
 			.then(applicants => resolve(applicants))
+			.catch(err => reject(err));
+	});
+};
+ClubSchema.methods.getClubCalendars = function(this: IClubSchema): Promise<ICalendarSchema[]> {
+	return new Promise<ICalendarSchema[]>((resolve, reject) => {
+		Calendar.find({ club: this._id })
+			.populate("owner", "name imgPath")
+			.then(calendars => resolve(calendars))
 			.catch(err => reject(err));
 	});
 };
