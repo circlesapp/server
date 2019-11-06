@@ -11,7 +11,7 @@ export interface IBudget {
 	price: number; // 가격
 	url: string; // URL
 	quantity: number; // 개수
-	shipping: number; // 배송비
+	shopping: number; // 배송비
 	date: Date; // 마감
 }
 /**
@@ -30,7 +30,7 @@ const IBudgetSchema: Schema = new Schema({
 	price: { type: Number, default: "" },
 	url: { type: String, default: "" },
 	quantity: { type: Number, default: "" },
-	shipping: { type: Number, default: "" },
+	shopping: { type: Number, default: "" },
 	date: { type: Date, default: Date.now },
 	createAt: { type: Date, default: Date.now }
 });
