@@ -14,17 +14,17 @@ import SendRule from "./modules/Send-Rule";
 import Router from "./routers/index";
 import PassportJWTAuth from "./modules/PassportJWT-Auth";
 
-const options = {
-	key: readFileSync("./ssl/key.pem"),
-	cert: readFileSync("./ssl/cert.pem")
-};
+// const options = {
+// 	key: readFileSync("./ssl/key.pem"),
+// 	cert: readFileSync("./ssl/cert.pem")
+// };
 
 const app: express.Application = express(); // 서버 객체
-https.createServer(options, app).listen(process.env.PORT || 3000, () => {
-	// HTTPS
-		Log.c("SERVER OPEN");
-		Log.c(`PORT : ${process.env.PORT || 3000}`);
-});
+// https.createServer(options, app).listen(process.env.PORT || 3000, () => {
+// 	// HTTPS
+// 		Log.c("SERVER OPEN");
+// 		Log.c(`PORT : ${process.env.PORT || 3000}`);
+// });
 
 DB.init(); // DB 세팅
 
@@ -45,10 +45,10 @@ app.get("/page", (req, res) => {
 app.use(Router); // 라우터 연결
 app.use(SendRule.autoErrorHandler()); // 에러 핸들링
 
-// app.listen(process.env.PORT || 3000, () => {
-// 	// 서버가 열렸을 시 콜백
-// 	Log.c("SERVER OPEN");
-// 	Log.c(`PORT : ${process.env.PORT || 3000}`);
-// });
+app.listen(process.env.PORT || 3000, () => {
+	// 서버가 열렸을 시 콜백
+	Log.c("SERVER OPEN");
+	Log.c(`PORT : ${process.env.PORT || 3000}`);
+});
 
 export default app;
