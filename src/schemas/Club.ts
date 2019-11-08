@@ -50,6 +50,7 @@ export interface IClub {
 	introduction: string;
 	members?: Member[]; // 동아리 회원
 	ranks?: Rank[]; // 동아리 계급들
+	page: any[];
 	createAt?: Date;
 }
 /**
@@ -122,6 +123,7 @@ const ClubSchema: Schema = new Schema({
 	introduction: { type: String, default: "" },
 	members: { type: Array, default: [], ref: "User" },
 	ranks: { type: Array, default: defaultRank },
+	page: { type: Array, default: [] },
 	createAt: { type: Date, default: Date.now }
 });
 
