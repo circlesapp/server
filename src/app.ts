@@ -15,6 +15,7 @@ import Router from "./routers/index";
 import PassportJWTAuth from "./modules/PassportJWT-Auth";
 
 const options = {
+	// SSL 인증서
 	key: readFileSync("./ssl/key.pem"),
 	cert: readFileSync("./ssl/cert.pem")
 };
@@ -28,6 +29,7 @@ https.createServer(options, app).listen(process.env.PORT || 3000, () => {
 
 DB.init(); // DB 세팅
 
+app.set("trust proxy", "loopback"); // 프록시 설정
 app.use(morgan("dev")); // 개발용 로그 미들웨어
 app.use(cors()); // CORS 설정 미들웨어
 app.use(helmet()); // 보안 미들웨어
