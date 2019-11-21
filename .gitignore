@@ -3,3 +3,4 @@
 /dist.ts
 /ssl
 .env
+combined.log

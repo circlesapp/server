@@ -18,7 +18,7 @@ class DB {
 			this.isDatabaseConnect = true;
 		});
 		mongoose.set("useCreateIndex", true);
-		mongoose.connect(url || process.env.DB_URL || "mongodb://localhost/NEM-TEMPLATE", { useNewUrlParser: true });
+		mongoose.connect(url || process.env.DB_URL || "mongodb://localhost/NEM-TEMPLATE", { useNewUrlParser: true, useUnifiedTopology: true });
 	}
 	/**
 	 * @description DB 연결 여부 확인
