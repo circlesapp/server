@@ -76,6 +76,7 @@ export interface IUserSchema extends IUser, Document {
 	removeAlarm(alarm: Alarm): Promise<IUserSchema>;
 	isJoinClub(club: IClubSchema): boolean;
 	joinClub(club: IClubSchema): Promise<IUserSchema>;
+	leaveClub(club: IClubSchema): Promise<IUserSchema>;
 }
 /**
  * @description User 모델에 대한 정적 메서드 ( 테이블 )
@@ -158,7 +159,7 @@ UserSchema.methods.changePassword = function(this: IUserSchema, data: IUserChang
 };
 UserSchema.methods.changeInfomation = function(this: IUserSchema, data: IUser): Promise<IUserSchema> {
 	Object.keys(data).forEach(x => {
-		if (x in this && (x != "email" && x != "_id" && x != "password" && x != "salt")) this[x] = data[x] || this[x];
+		if (x in this && x != "email" && x != "_id" && x != "password" && x != "salt") this[x] = data[x] || this[x];
 	});
 	return this.save();
 };
@@ -230,6 +231,27 @@ UserSchema.methods.joinClub = function(this: IUserSchema, club: IClubSchema): Pr
 				.catch(err => reject(err));
 		} else {
 			reject(new StatusError(400, "이미 가입된 동아리 입니다."));
+		}
+	});
+};
+UserSchema.methods.leaveClub = function(this: IUserSchema, club: IClubSchema): Promise<IUserSchema> {
+	return new Promise<IUserSchema>((resolve, reject) => {
+		if (this.isJoinClub(club)) {
+			let idx = this.clubs.findIndex((clubid: ObjectID) => club._id.equals(clubid));
+			this.clubs.splice(idx, 1);
+			this.save()
+				.then(user => {
+					let idx = club.members.findIndex(user => this._id.equals(user.user));
+					club.members.splice(idx, 1);
+					club.save()
+						.then(club => {
+							resolve(user);
+						})
+						.catch(err => reject(err));
+				})
+				.catch(err => reject(err));
+		} else {
+			reject(new StatusError(400, "가입되지 않은 동아리 입니다."));
 		}
 	});
 };

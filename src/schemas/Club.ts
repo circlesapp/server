@@ -68,6 +68,9 @@ export interface IClubSchema extends IClub, Document {
 
 	checkPermission(permission: Permission, user: IUserSchema);
 	checkAdmin(user: IUserSchema);
+	checkOwner(user: IUserSchema);
+
+	fireMember(memberId: ObjectID): Promise<IClubSchema>;
 
 	acceptApplicant(applicantId: ObjectID): Promise<IApplicantSchema>;
 	rejectApplicant(applicantId: ObjectID): Promise<IApplicantSchema>;
@@ -82,6 +85,7 @@ export interface IClubModel extends Model<IClubSchema> {
 	 * @returns {Promise<IUserSchema>} 입력받은 데이터에 대한 동아리입니다.
 	 */
 	createClub(owner: IUserSchema, data: IClub): Promise<IClubSchema>;
+	deleteClub(club: IClubSchema): Promise<IClubSchema>;
 	/**
 	 * @description 동아리 이름을 입력받아 일치하는 동아리를 반환합니다.
 	 * @param {string}email 찾을 동아리 이름
@@ -129,7 +133,7 @@ const ClubSchema: Schema = new Schema({
 
 ClubSchema.methods.changeInfomation = function(this: IClubSchema, data: IClub): Promise<IClubSchema> {
 	Object.keys(data).forEach(x => {
-		if (x in this && (x != "owner" && x != "createAt" && x != "_id" && x != "imgPath")) {
+		if (x in this && x != "owner" && x != "createAt" && x != "_id" && x != "imgPath") {
 			if (x == "members") {
 				this[x] = data[x].map(y => {
 					y.user = new ObjectId(y.user);
@@ -224,6 +228,26 @@ ClubSchema.methods.checkAdmin = function(this: IClubSchema, user: IUserSchema): 
 		return false;
 	}
 };
+ClubSchema.methods.checkOwner = function(this: IClubSchema, user: IUserSchema): boolean {
+	if (user.isJoinClub(this)) {
+		return user._id.equals(this.owner);
+	} else {
+		return false;
+	}
+};
+
+ClubSchema.methods.fireMember = function(this: IClubSchema, memberId: ObjectID): Promise<IClubSchema> {
+	return new Promise<IClubSchema>((resolve, reject) => {
+		User.findById(memberId).then(user => {
+			user.leaveClub(this)
+				.then(user => {
+					resolve(this);
+				})
+				.catch(err => reject(err));
+		});
+	});
+};
+
 ClubSchema.methods.acceptApplicant = function(this: IClubSchema, applicantId: ObjectID): Promise<IApplicantSchema> {
 	return new Promise<IApplicantSchema>((resolve, reject) => {
 		Applicant.findOne({ _id: applicantId })
@@ -254,6 +278,31 @@ ClubSchema.methods.rejectApplicant = function(this: IClubSchema, applicantId: Ob
 						user.removeApplicant(applicant)
 							.then(user => {
 								resolve(applicant);
+							})
+							.catch(err => reject(err));
+					})
+					.catch(err => reject(err));
+			})
+			.catch(err => reject(err));
+	});
+};
+
+ClubSchema.statics.deleteClub = function(this: IClubModel, club: IClubSchema): Promise<IClubSchema> {
+	return new Promise<IClubSchema>((resolve, reject) => {
+		let usersId = club.members.map((member: Member) => member.user);
+		usersId.push(club.owner);
+		User.find({ _id: usersId })
+			.then(users => {
+				users.map((user: IUserSchema) => {
+					let idx = user.clubs.findIndex(clubid => club._id.equals(clubid));
+					if (idx != -1) user.clubs.splice(idx, 1);
+					return user;
+				});
+				User.updateMany({}, users)
+					.then(users => {
+						club.remove()
+							.then(club => {
+								resolve(club);
 							})
 							.catch(err => reject(err));
 					})
