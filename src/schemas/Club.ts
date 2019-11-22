@@ -79,6 +79,7 @@ export interface IClubSchema extends IClub, Document {
  * @description User 모델에 대한 정적 메서드 ( 테이블 )
  */
 export interface IClubModel extends Model<IClubSchema> {
+	resetClub(club: IClubSchema): Promise<IClubSchema>;
 	/**
 	 * @description 동아리를 생성한 후 그 동아리를 반환합니다.
 	 * @param {IUser}data 생성할 동아리 데이터
@@ -287,6 +288,19 @@ ClubSchema.methods.rejectApplicant = function(this: IClubSchema, applicantId: Ob
 	});
 };
 
+ClubSchema.statics.resetClub = async function(this: IClubModel, club: IClubSchema): Promise<IClubSchema> {
+	try {
+		let post = await Post.deleteMany({ club: club._id });
+		let budget = await Budget.deleteMany({ club: club._id });
+		let award = await Award.deleteMany({ club: club._id });
+		let applicant = await Applicant.deleteMany({ club: club._id });
+		let calendar = await Calendar.deleteMany({ club: club._id });
+		return club;
+	} catch (err) {
+		throw err;
+	}
+};
+
 ClubSchema.statics.deleteClub = function(this: IClubModel, club: IClubSchema): Promise<IClubSchema> {
 	return new Promise<IClubSchema>((resolve, reject) => {
 		let usersId = club.members.map((member: Member) => member.user);
@@ -300,6 +314,7 @@ ClubSchema.statics.deleteClub = function(this: IClubModel, club: IClubSchema): P
 				});
 				User.updateMany({}, users)
 					.then(users => {
+						this.resetClub(club);
 						club.remove()
 							.then(club => {
 								resolve(club);

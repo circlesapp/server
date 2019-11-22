@@ -152,12 +152,22 @@ PostSchema.methods.toggleLike = function(this: IPostSchema, user: IUserSchema): 
 	});
 };
 
-PostSchema.methods.removePost = function(this: IPostSchema): Promise<any> {
-	return this.remove();
+PostSchema.methods.removePost = function(this: IPostSchema): Promise<IPostSchema> {
+	return new Promise<IPostSchema>((resolve, reject) => {
+		Comment.deleteMany({ _id: this.comments })
+			.then(() => {
+				this.remove()
+					.then(post => {
+						resolve(post);
+					})
+					.catch(err => reject(err));
+			})
+			.catch(err => reject(err));
+	});
 };
 PostSchema.methods.changeInfomation = function(this: IPostSchema, data: IPost): Promise<IPostSchema> {
 	Object.keys(data).forEach(x => {
-		if (x in this && (x != "owner" && x != "createAt" && x != "_id")) this[x] = data[x] || this[x];
+		if (x in this && x != "owner" && x != "createAt" && x != "_id") this[x] = data[x] || this[x];
 	});
 	return this.save();
 };
