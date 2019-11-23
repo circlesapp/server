@@ -23,7 +23,7 @@ export const FireMember = (req: Request, res: Response, next: NextFunction) => {
 	let user: IUserSchema = req.user as IUserSchema;
 	let club = (req as any).club as IClubSchema;
 	let data = req.body as { _id: ObjectID };
-	if (club.checkOwner(user)) {
+	if (club.checkAdmin(user)) {
 		club.fireMember(data._id)
 			.then(club => {
 				SendRule.response(res, HTTPRequestCode.OK, club, "동아리 퇴출 성공");

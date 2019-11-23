@@ -52,11 +52,10 @@ export const Modification = function(req: Request, res: Response, next: NextFunc
 	});
 };
 
-
 export const GetClubApplications = function(req: Request, res: Response, next: NextFunction) {
 	let user = req.user as IUserSchema;
 	let club = (req as any).club as IClubSchema;
-	if (club.checkAdmin(user)) {
+	if (club.checkPermission(Permission.ACCESS_APPLYCANT_READ, user)) {
 		club.getClubApplicants()
 			.then(applications => {
 				SendRule.response(res, HTTPRequestCode.CREATE, applications);
@@ -89,7 +88,7 @@ export const Accept = function(req: Request, res: Response, next: NextFunction) 
 	let club = (req as any).club as IClubSchema;
 	let data = req.body;
 
-	if (club.checkAdmin(user) || club.checkPermission(Permission.ACCESS_APPLYCANT_ACCEPT, user)) {
+	if (club.checkPermission(Permission.ACCESS_APPLYCANT_ACCEPT, user)) {
 		club.acceptApplicant(data._id)
 			.then(applicant => {
 				SendRule.response(res, HTTPRequestCode.CREATE, applicant, "지원서 수락 성공");
@@ -105,7 +104,7 @@ export const Reject = function(req: Request, res: Response, next: NextFunction) 
 	let club = (req as any).club as IClubSchema;
 	let data = req.body;
 
-	if (club.checkAdmin(user) || club.checkPermission(Permission.ACCESS_APPLYCANT_DELETE, user)) {
+	if (club.checkPermission(Permission.ACCESS_APPLYCANT_DELETE, user)) {
 		club.rejectApplicant(data._id)
 			.then(applicant => {
 				SendRule.response(res, HTTPRequestCode.CREATE, applicant, "지원서 거절 성공");

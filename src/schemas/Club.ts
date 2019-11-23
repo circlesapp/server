@@ -25,9 +25,9 @@ export enum Permission {
 	ACCESS_APPLYCANT_READ = 32, // 지원서 읽기 권한
 	ACCESS_APPLYCANT_DELETE = 32, // 지원서 삭제 권한
 
-	ACCESS_CALENDAR_CREATE = 41, // 지원서 생성 권한
-	ACCESS_CALENDAR_READ = 42, // 지원서 읽기 권한
-	ACCESS_CALENDAR_DELETE = 42 // 지원서 삭제 권한
+	ACCESS_CALENDAR_CREATE = 41, // 캘린더 생성 권한
+	ACCESS_CALENDAR_READ = 42, // 캘린더 읽기 권한
+	ACCESS_CALENDAR_DELETE = 42 // 캘린더 삭제 권한
 }
 export interface Member {
 	user: ObjectID; // 유저 아이디
