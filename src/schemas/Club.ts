@@ -212,11 +212,13 @@ ClubSchema.methods.getClubCalendars = function(this: IClubSchema): Promise<ICale
 
 ClubSchema.methods.checkPermission = function(this: IClubSchema, permission: Permission, user: IUserSchema): boolean {
 	if (user.isJoinClub(this)) {
-		if (user._id.equals(this.owner)) return true;
-		let userMember = this.members.find(member => user._id.equals(member.user));
-		let userRank = this.ranks.find(rank => rank.id == userMember.rank);
-		if (userRank.isAdmin == true) return true;
-		else return userRank.permission.map((x: any) => parseInt(x)).indexOf(permission) != -1;
+		if (this.owner.equals(user._id)) return true;
+		else {
+			let userMember = this.members.find(member => user._id.equals(member.user));
+			let userRank = this.ranks.find(rank => rank.id == userMember.rank);
+			if (userRank.isAdmin == true) return true;
+			else return userRank.permission.map((x: any) => parseInt(x)).indexOf(permission) != -1;
+		}
 	} else {
 		return false;
 	}
