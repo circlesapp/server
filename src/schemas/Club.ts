@@ -239,12 +239,16 @@ ClubSchema.methods.checkOwner = function(this: IClubSchema, user: IUserSchema): 
 
 ClubSchema.methods.fireMember = function(this: IClubSchema, memberId: ObjectID): Promise<IClubSchema> {
 	return new Promise<IClubSchema>((resolve, reject) => {
-		User.findById(memberId).then(user => {
-			user.leaveClub(this)
-				.then(user => {
-					resolve(this);
-				})
-				.catch(err => reject(err));
+		User.findOne({ _id: memberId }).then(user => {
+			if (user) {
+				user.leaveClub(this)
+					.then(user => {
+						resolve(this);
+					})
+					.catch(err => reject(err));
+			} else {
+				reject(new StatusError(400, "존재하지 않는 유저입니다."));
+			}
 		});
 	});
 };
