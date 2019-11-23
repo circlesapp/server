@@ -72,7 +72,7 @@ export interface IUserSchema extends IUser, Document {
 	getAlarm(): Alarm[];
 	pushApplicant(applicant: IApplicantSchema): Promise<IUserSchema>;
 	removeApplicant(applicant: IApplicantSchema): Promise<IUserSchema>;
-	pushAlarm(alarm: Alarm): void;
+	pushAlarm(alarm: Alarm): IUserSchema;
 	pushAlarmAndSave(alarm: Alarm): Promise<IUserSchema>;
 	removeAlarm(id: number): Promise<IUserSchema>;
 	removeAllAlarm(): Promise<IUserSchema>;
@@ -207,15 +207,16 @@ UserSchema.methods.getAlarm = function(this: IUserSchema): Alarm[] {
 		return x;
 	});
 };
-UserSchema.methods.pushAlarm = function(this: IUserSchema, alarm: Alarm): void {
+UserSchema.methods.pushAlarm = function(this: IUserSchema, alarm: Alarm): IUserSchema {
 	alarm.id = this.alarms.length > 0 ? this.alarms[this.alarms.length - 1].id + 1 : 0;
 	alarm.createAt = new Date();
 	this.alarms.unshift(alarm);
+	return this;
 };
 UserSchema.methods.pushAlarmAndSave = function(this: IUserSchema, alarm: Alarm): Promise<IUserSchema> {
 	return new Promise<IUserSchema>((resolve, reject) => {
-		this.pushAlarm(alarm);
-		this.save()
+		this.pushAlarm(alarm)
+			.save()
 			.then(user => {
 				resolve(user);
 			})
@@ -247,11 +248,11 @@ UserSchema.methods.removeAllAlarm = function(this: IUserSchema): Promise<IUserSc
 UserSchema.methods.joinClub = function(this: IUserSchema, club: IClubSchema): Promise<IUserSchema> {
 	return new Promise<IUserSchema>((resolve, reject) => {
 		if (!this.isJoinClub(club)) {
+			this.clubs.push(club._id);
 			this.pushAlarm({
 				message: `<b>${club.name}</b> 동아리에 가입했습니다.`
-			});
-			this.clubs.push(club._id);
-			this.save()
+			})
+				.save()
 				.then(user => {
 					club.members.push({ rank: 1, user: this._id });
 					club.save()
@@ -269,12 +270,12 @@ UserSchema.methods.joinClub = function(this: IUserSchema, club: IClubSchema): Pr
 UserSchema.methods.leaveClub = function(this: IUserSchema, club: IClubSchema): Promise<IUserSchema> {
 	return new Promise<IUserSchema>((resolve, reject) => {
 		if (this.isJoinClub(club)) {
-			this.pushAlarm({
-				message: `<b>${club.name}</b> 동아리에 탈퇴했습니다.`
-			});
 			let idx = this.clubs.findIndex((clubid: ObjectID) => club._id.equals(clubid));
 			this.clubs.splice(idx, 1);
-			this.save()
+			this.pushAlarm({
+				message: `<b>${club.name}</b> 동아리에 탈퇴했습니다.`
+			})
+				.save()
 				.then(user => {
 					let idx = club.members.findIndex(user => this._id.equals(user.user));
 					club.members.splice(idx, 1);
