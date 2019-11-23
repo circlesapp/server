@@ -375,7 +375,7 @@ ClubSchema.statics.createClub = function(this: IClubModel, owner: IUserSchema, d
 };
 ClubSchema.statics.findByName = function(this: IClubModel, name: string): Promise<IClubSchema> {
 	return new Promise<IClubSchema>((resolve, reject) => {
-		this.findOne({ name: { $regex: name, $options: "i" } })
+		this.findOne({ name: name})
 			.then(club => resolve(club))
 			.catch(err => reject(err));
 	});
