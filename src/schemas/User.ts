@@ -134,7 +134,7 @@ const UserSchema: Schema = new Schema({
 	password: { type: String, required: true },
 	name: { type: String, required: true },
 	applicants: [{ type: ObjectID, ref: "Applicant" }],
-	alarm: { type: Array, default: [] },
+	alarms: { type: Array, default: [] },
 	imgPath: { type: String, default: "" },
 	lastLogin: { type: Date, default: Date.now },
 	createAt: { type: Date, default: Date.now },
@@ -208,11 +208,7 @@ UserSchema.methods.getAlarm = function(this: IUserSchema): Alarm[] {
 	});
 };
 UserSchema.methods.pushAlarm = function(this: IUserSchema, alarm: Alarm): IUserSchema {
-	if (this.alarms) alarm.id = (this.alarms[0].id || 0) + 1;
-	else {
-		alarm.id = 0;
-		this.alarms = [];
-	}
+	alarm.id = (this.alarms[0].id || 0) + 1;
 	alarm.createAt = new Date();
 	this.alarms.unshift(alarm);
 	return this;
