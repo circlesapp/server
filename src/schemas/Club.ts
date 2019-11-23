@@ -212,6 +212,7 @@ ClubSchema.methods.getClubCalendars = function(this: IClubSchema): Promise<ICale
 
 ClubSchema.methods.checkPermission = function(this: IClubSchema, permission: Permission, user: IUserSchema): boolean {
 	if (user.isJoinClub(this)) {
+		if (user._id.equals(this.owner)) return true;
 		let userMember = this.members.find(member => user._id.equals(member.user));
 		let userRank = this.ranks.find(rank => rank.id == userMember.rank);
 		if (userRank.isAdmin == true) return true;
@@ -355,9 +356,10 @@ ClubSchema.statics.createClub = function(this: IClubModel, owner: IUserSchema, d
 				club.save()
 					.then(club => {
 						owner.clubs.push(club._id);
-						owner.pushAlarm({
-							message: `<b>${data.name}</b> 동아리가 생성됐습니다.`
-						})
+						owner
+							.pushAlarm({
+								message: `<b>${data.name}</b> 동아리가 생성됐습니다.`
+							})
 							.save()
 							.then(user => resolve(club))
 							.catch(err => reject(err));
