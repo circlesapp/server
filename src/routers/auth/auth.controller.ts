@@ -171,7 +171,6 @@ export const RemoveAlarm = (req: Request, res: Response, next: NextFunction) => 
 
 export const RemoveAllAlarm = (req: Request, res: Response, next: NextFunction) => {
 	let user: IUserSchema = req.user as IUserSchema;
-	let data = req.body.id;
 
 	user.removeAllAlarm()
 		.then(user => {
