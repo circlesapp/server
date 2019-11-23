@@ -208,7 +208,8 @@ UserSchema.methods.getAlarm = function(this: IUserSchema): Alarm[] {
 	});
 };
 UserSchema.methods.pushAlarm = function(this: IUserSchema, alarm: Alarm): IUserSchema {
-	alarm.id = (this.alarms[0].id || 0) + 1;
+	let top = this.alarms[0];
+	alarm.id = top ? top.id + 1 : 0;
 	alarm.createAt = new Date();
 	this.alarms.unshift(alarm);
 	return this;
