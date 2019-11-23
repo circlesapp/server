@@ -209,6 +209,10 @@ UserSchema.methods.getAlarm = function(this: IUserSchema): Alarm[] {
 };
 UserSchema.methods.pushAlarm = function(this: IUserSchema, alarm: Alarm): IUserSchema {
 	if (this.alarms) alarm.id = (this.alarms[0].id || 0) + 1;
+	else {
+		alarm.id = 0;
+		this.alarms = [];
+	}
 	alarm.createAt = new Date();
 	this.alarms.unshift(alarm);
 	return this;
