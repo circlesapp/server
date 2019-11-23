@@ -151,3 +151,31 @@ export const ChangeProfileImage = (req: Request, res: Response, next: NextFuncti
 		next(new StatusError(HTTPRequestCode.BAD_REQUEST, "잘못된 요청"));
 	}
 };
+
+export const GetAlarm = (req: Request, res: Response, next: NextFunction) => {
+	let user: IUserSchema = req.user as IUserSchema;
+
+	SendRule.response(res, HTTPRequestCode.OK, user.getAlarm(), "알람 가져오기 성공");
+};
+
+export const RemoveAlarm = (req: Request, res: Response, next: NextFunction) => {
+	let user: IUserSchema = req.user as IUserSchema;
+	let data = req.body.id;
+
+	user.removeAlarm(data)
+		.then(user => {
+			SendRule.response(res, HTTPRequestCode.OK, user.getAlarm(), "알람 삭제 성공");
+		})
+		.catch(err => next(err));
+};
+
+export const RemoveAllAlarm = (req: Request, res: Response, next: NextFunction) => {
+	let user: IUserSchema = req.user as IUserSchema;
+	let data = req.body.id;
+
+	user.removeAllAlarm()
+		.then(user => {
+			SendRule.response(res, HTTPRequestCode.OK, user.getAlarm(), "알람 삭제 성공");
+		})
+		.catch(err => next(err));
+};

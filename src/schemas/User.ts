@@ -11,9 +11,9 @@ moment.tz.setDefault("Asia/Seoul");
 moment.locale("ko");
 
 export interface Alarm {
-	url: string; // 알람 링크
+	id?: number;
 	message: string; // 알람 메세지
-	createAt: Date; // 생성일
+	createAt?: Date; // 생성일
 	timeString?: String; // 시간 비교
 }
 export interface PasswordAndSalt {
@@ -72,8 +72,10 @@ export interface IUserSchema extends IUser, Document {
 	getAlarm(): Alarm[];
 	pushApplicant(applicant: IApplicantSchema): Promise<IUserSchema>;
 	removeApplicant(applicant: IApplicantSchema): Promise<IUserSchema>;
-	pushAlarm(alarm: Alarm): Promise<IUserSchema>;
-	removeAlarm(alarm: Alarm): Promise<IUserSchema>;
+	pushAlarm(alarm: Alarm): void;
+	pushAlarmAndSave(alarm: Alarm): Promise<IUserSchema>;
+	removeAlarm(id: number): Promise<IUserSchema>;
+	removeAllAlarm(): Promise<IUserSchema>;
 	isJoinClub(club: IClubSchema): boolean;
 	joinClub(club: IClubSchema): Promise<IUserSchema>;
 	leaveClub(club: IClubSchema): Promise<IUserSchema>;
@@ -205,9 +207,14 @@ UserSchema.methods.getAlarm = function(this: IUserSchema): Alarm[] {
 		return x;
 	});
 };
-UserSchema.methods.pushAlarm = function(this: IUserSchema, alarm: Alarm): Promise<IUserSchema> {
+UserSchema.methods.pushAlarmAndSave = function(this: IUserSchema, alarm: Alarm): void {
+	alarm.id = this.alarms.length > 0 ? this.alarms[this.alarms.length - 1].id + 1 : 0;
+	alarm.createAt = new Date();
+	this.alarms.unshift(alarm);
+};
+UserSchema.methods.pushAlarmAndSave = function(this: IUserSchema, alarm: Alarm): Promise<IUserSchema> {
 	return new Promise<IUserSchema>((resolve, reject) => {
-		this.alarms.unshift(alarm);
+		this.pushAlarm(alarm);
 		this.save()
 			.then(user => {
 				resolve(user);
@@ -215,9 +222,34 @@ UserSchema.methods.pushAlarm = function(this: IUserSchema, alarm: Alarm): Promis
 			.catch(err => reject(err));
 	});
 };
+UserSchema.methods.removeAlarm = function(this: IUserSchema, id: number): Promise<IUserSchema> {
+	return new Promise<IUserSchema>((resolve, reject) => {
+		let idx = this.alarms.findIndex((alarm: Alarm) => alarm.id == id);
+		if (idx != -1) this.alarms.splice(idx, 1);
+		this.save()
+			.then(user => {
+				resolve(user);
+			})
+			.catch(err => reject(err));
+	});
+};
+UserSchema.methods.removeAllAlarm = function(this: IUserSchema): Promise<IUserSchema> {
+	return new Promise<IUserSchema>((resolve, reject) => {
+		this.alarms = [];
+		this.save()
+			.then(user => {
+				resolve(user);
+			})
+			.catch(err => reject(err));
+	});
+};
+
 UserSchema.methods.joinClub = function(this: IUserSchema, club: IClubSchema): Promise<IUserSchema> {
 	return new Promise<IUserSchema>((resolve, reject) => {
 		if (!this.isJoinClub(club)) {
+			this.pushAlarm({
+				message: `<b>${club.name}</b> 동아리에 가입했습니다.`
+			});
 			this.clubs.push(club._id);
 			this.save()
 				.then(user => {
@@ -237,6 +269,9 @@ UserSchema.methods.joinClub = function(this: IUserSchema, club: IClubSchema): Pr
 UserSchema.methods.leaveClub = function(this: IUserSchema, club: IClubSchema): Promise<IUserSchema> {
 	return new Promise<IUserSchema>((resolve, reject) => {
 		if (this.isJoinClub(club)) {
+			this.pushAlarm({
+				message: `<b>${club.name}</b> 동아리에 탈퇴했습니다.`
+			});
 			let idx = this.clubs.findIndex((clubid: ObjectID) => club._id.equals(clubid));
 			this.clubs.splice(idx, 1);
 			this.save()
