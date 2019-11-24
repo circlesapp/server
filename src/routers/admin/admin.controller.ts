@@ -21,7 +21,7 @@ export const TestPushAlarm = (req: Request, res: Response, next: NextFunction) =
 	WebPush.setGCMAPIKey("AIzaSyCpP6DkP_LO9UIMGs2M6yQX0q9-Hh8HVDk");
 	WebPush.setVapidDetails("mailto:example@yourdomain.org", "BOv3hzFFm8Vac3tXPsNT9CmOEBvJA3kUfJ3C0QMI33VaeN8Gl8hs9GBcg1xtECK53YeF7dm9Dzc8YQfdmno8z28", "0DPpRHxMgLTWBLaPx89EWzdwm9LgMnINQrlc7rUZHyI");
 
-	const pushSubscription = req.body.data;
+	const pushSubscription = req.body;
 
 	WebPush.sendNotification(pushSubscription, "PushTest")
 		.then(data => {
