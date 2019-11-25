@@ -7,6 +7,9 @@ import * as moment from "moment";
 import "moment-timezone";
 import { IClubSchema } from "./Club";
 import { IApplicantSchema } from "./Club/Applicant";
+import * as WebPush from "web-push";
+import PushManager from "../modules/Push-Manager";
+
 moment.tz.setDefault("Asia/Seoul");
 moment.locale("ko");
 
@@ -31,6 +34,7 @@ export interface IUser {
 	applicants: ObjectID[];
 	alarms: Alarm[]; // 알람 스택
 	imgPath: string; // 프로필 사진
+	pushSubscription: WebPush.PushSubscription;
 	lastLogin?: Date; // 마지막 로그인 시간
 	createAt?: Date; // 생성일
 	salt?: string; // 암호화 키
@@ -69,6 +73,7 @@ export interface IUserSchema extends IUser, Document {
 	 * @returns {Promise<IUserSchema>} 작업이 완료 된 후 그 유저를 반환합니다.
 	 */
 	updateLoginTime(): Promise<IUserSchema>;
+	updatePushSubscription(pushSubscription: WebPush.PushSubscription): Promise<IUserSchema>;
 	getAlarm(): Alarm[];
 	pushApplicant(applicant: IApplicantSchema): Promise<IUserSchema>;
 	removeApplicant(applicant: IApplicantSchema): Promise<IUserSchema>;
@@ -136,6 +141,7 @@ const UserSchema: Schema = new Schema({
 	applicants: [{ type: ObjectID, ref: "Applicant" }],
 	alarms: { type: Array, default: [] },
 	imgPath: { type: String, default: "" },
+	pushSubscription: { type: Object, default: {} },
 	lastLogin: { type: Date, default: Date.now },
 	createAt: { type: Date, default: Date.now },
 	salt: { type: String, default: process.env.SECRET_KEY || "SECRET" }
@@ -170,6 +176,10 @@ UserSchema.methods.withdrawAccount = function(this: IUserSchema): Promise<any> {
 };
 UserSchema.methods.updateLoginTime = function(this: IUserSchema): Promise<IUserSchema> {
 	this.lastLogin = new Date();
+	return this.save();
+};
+UserSchema.methods.updatePushSubscription = function(this: IUserSchema, pushSubscription: WebPush.PushSubscription): Promise<IUserSchema> {
+	this.pushSubscription = pushSubscription;
 	return this.save();
 };
 
@@ -208,6 +218,7 @@ UserSchema.methods.getAlarm = function(this: IUserSchema): Alarm[] {
 	});
 };
 UserSchema.methods.pushAlarm = function(this: IUserSchema, alarm: Alarm): IUserSchema {
+	PushManager.sendMessage(this.pushSubscription, alarm.message);
 	let top = this.alarms[0];
 	alarm.id = top ? top.id + 1 : 0;
 	alarm.createAt = new Date();
