@@ -64,6 +64,7 @@ export const GetProfile = (req: Request, res: Response, next: NextFunction) => {
 		.execPopulate()
 		.then(user => {
 			if (req.body) {
+				console.log(req.body);
 				user.updatePushSubscription(req.body)
 					.then(user => {
 						SendRule.response(res, 200, user, "푸시 갱신 성공");

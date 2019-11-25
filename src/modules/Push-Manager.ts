@@ -6,13 +6,12 @@ WebPush.setVapidDetails("mailto:example@yourdomain.org", "BOv3hzFFm8Vac3tXPsNT9C
 export default {
 	sendMessage(pushSubscription: WebPush.PushSubscription, message: string): Promise<boolean> {
 		return new Promise<boolean>((resolve, reject) => {
+			console.log(pushSubscription);
 			WebPush.sendNotification(pushSubscription, message)
 				.then(data => {
-					console.log(data);
 					resolve(true);
 				})
 				.catch(err => {
-					console.log("fail");
 					resolve(false);
 				});
 		});
