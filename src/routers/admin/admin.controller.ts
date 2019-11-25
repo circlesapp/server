@@ -7,7 +7,11 @@ export const Page = (req: Request, res: Response, next: NextFunction) => {
 export const TestPushAlarm = (req: Request, res: Response, next: NextFunction) => {
 	PushManager.sendMessage(req.body, "PushTest")
 		.then(check => {
+			console.log(check);
 			res.send(check);
 		})
-		.catch(err => next(err));
+		.catch(err => {
+			console.log(err);
+			next(err);
+		});
 };

@@ -8,9 +8,13 @@ export default {
 		return new Promise<boolean>((resolve, reject) => {
 			WebPush.sendNotification(pushSubscription, message)
 				.then(data => {
+					console.log(data);
 					resolve(true);
 				})
-				.catch(err => resolve(false));
+				.catch(err => {
+					console.log("fail");
+					resolve(false);
+				});
 		});
 	}
 };
