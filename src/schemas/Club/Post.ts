@@ -1,11 +1,10 @@
 import { Document, Schema, Model, model } from "mongoose";
 import { ObjectID } from "bson";
-import { IUserSchema } from "../User";
+import User, { IUserSchema } from "../User";
 
 import * as moment from "moment";
 import "moment-timezone";
 import Comment, { IComment, ICommentSchema } from "./Post/Comment";
-import { StatusError } from "../../modules/Send-Rule";
 import { IClubSchema } from "../Club";
 moment.tz.setDefault("Asia/Seoul");
 moment.locale("ko");
@@ -119,7 +118,15 @@ PostSchema.methods.pushComment = function(this: IPostSchema, user: IUserSchema, 
 			.then(comment => {
 				this.comments.push(comment._id);
 				this.save()
-					.then(post => resolve(post))
+					.then(post => {
+						User.findOne({ _id: this.owner })
+							.then(owner => {
+								// FIXME: 텍스트수정바람
+								owner.pushAlarm({ message: `<b>${user.name}</b>님이 당신의 글에 댓글을 작성하셨습니다.` });
+								resolve(post);
+							})
+							.catch(err => reject(err));
+					})
 					.catch(err => reject(err));
 			})
 			.catch(err => reject(err));
@@ -147,7 +154,15 @@ PostSchema.methods.toggleLike = function(this: IPostSchema, user: IUserSchema): 
 		if (idx == -1) this.likes.push(user._id);
 		else this.likes.splice(idx, 1);
 		this.save()
-			.then(post => resolve(post))
+			.then(post => {
+				User.findOne({ _id: this.owner })
+					.then(owner => {
+						// FIXME: 텍스트수정바람
+						owner.pushAlarm({ message: `<b>${user.name}</b> 님이 당신의 글에 좋아요를 눌렀습니다.` });
+						resolve(post);
+					})
+					.catch(err => reject(err));
+			})
 			.catch(err => reject(err));
 	});
 };
