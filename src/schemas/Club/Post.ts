@@ -155,13 +155,15 @@ PostSchema.methods.toggleLike = function(this: IPostSchema, user: IUserSchema): 
 		else this.likes.splice(idx, 1);
 		this.save()
 			.then(post => {
-				User.findOne({ _id: this.owner })
-					.then(owner => {
-						// FIXME: 텍스트수정바람
-						owner.pushAlarm({ message: `<b>${user.name}</b> 님이 당신의 글에 좋아요를 눌렀습니다.` });
-						resolve(post);
-					})
-					.catch(err => reject(err));
+				if (idx == 1)
+					User.findOne({ _id: this.owner })
+						.then(owner => {
+							// FIXME: 텍스트수정바람
+							owner.pushAlarm({ message: `<b>${user.name}</b> 님이 당신의 글에 좋아요를 눌렀습니다.` });
+							resolve(post);
+						})
+						.catch(err => reject(err));
+				else resolve(post);
 			})
 			.catch(err => reject(err));
 	});
