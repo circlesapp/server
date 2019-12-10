@@ -122,8 +122,12 @@ PostSchema.methods.pushComment = function(this: IPostSchema, user: IUserSchema, 
 						User.findOne({ _id: this.owner })
 							.then(owner => {
 								// FIXME: 텍스트수정바람
-								owner.pushAlarm({ message: `<b>${user.name}</b>님이 당신의 글에 댓글을 작성하셨습니다.` });
-								resolve(post);
+								owner
+									.pushAlarmAndSave({ message: `<b>${user.name}</b>님이 당신의 글에 댓글을 작성하셨습니다.` })
+									.then(owner => {
+										resolve(post);
+									})
+									.catch(err => reject(err));
 							})
 							.catch(err => reject(err));
 					})
@@ -159,8 +163,12 @@ PostSchema.methods.toggleLike = function(this: IPostSchema, user: IUserSchema): 
 					User.findOne({ _id: this.owner })
 						.then(owner => {
 							// FIXME: 텍스트수정바람
-							owner.pushAlarm({ message: `<b>${user.name}</b> 님이 당신의 글에 좋아요를 눌렀습니다.` });
-							resolve(post);
+							owner
+								.pushAlarmAndSave({ message: `<b>${user.name}</b> 님이 당신의 글에 좋아요를 눌렀습니다.` })
+								.then(owner => {
+									resolve(post);
+								})
+								.catch(err => reject(err));
 						})
 						.catch(err => reject(err));
 				} else {
