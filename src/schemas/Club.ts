@@ -32,6 +32,7 @@ export enum Permission {
 export interface Member {
 	user: ObjectID; // 유저 아이디
 	rank: number; // 랭크 코드
+	isPass?: boolean;
 }
 export interface Rank {
 	id: number;
@@ -375,7 +376,7 @@ ClubSchema.statics.createClub = function(this: IClubModel, owner: IUserSchema, d
 };
 ClubSchema.statics.findByName = function(this: IClubModel, name: string): Promise<IClubSchema> {
 	return new Promise<IClubSchema>((resolve, reject) => {
-		this.findOne({ name: name})
+		this.findOne({ name: name })
 			.then(club => resolve(club))
 			.catch(err => reject(err));
 	});
