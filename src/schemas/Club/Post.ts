@@ -155,7 +155,7 @@ PostSchema.methods.toggleLike = function(this: IPostSchema, user: IUserSchema): 
 		else this.likes.splice(idx, 1);
 		this.save()
 			.then(post => {
-				if (idx == 1)
+				if (idx == -1) {
 					User.findOne({ _id: this.owner })
 						.then(owner => {
 							// FIXME: 텍스트수정바람
@@ -163,7 +163,9 @@ PostSchema.methods.toggleLike = function(this: IPostSchema, user: IUserSchema): 
 							resolve(post);
 						})
 						.catch(err => reject(err));
-				else resolve(post);
+				} else {
+					resolve(post);
+				}
 			})
 			.catch(err => reject(err));
 	});
