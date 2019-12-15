@@ -8,7 +8,6 @@ export default function(server: Server) {
 
 	io.on("connection", socket => {
 		Log.d("Connect Socket IO");
-		socket.emit("connect", true);
 		socket.on("msg", data => {
 			Log.d(data);
 			socket.emit("msg", data);
