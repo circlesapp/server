@@ -24,6 +24,7 @@
 		"@types/node": "^12.7.4",
 		"@types/passport": "^1.0.1",
 		"@types/passport-jwt": "^3.0.1",
+		"@types/socket.io": "^2.1.4",
 		"@types/supertest": "^2.0.8",
 		"@types/web-push": "^3.3.0",
 		"chai": "^4.2.0",
@@ -53,6 +54,7 @@
 		"passport-jwt": "^4.0.0",
 		"path": "^0.12.7",
 		"pm2": "^3.5.1",
+		"socket.io": "^2.3.0",
 		"web-push": "^3.4.1",
 		"webpack": "^4.39.3"
 	}

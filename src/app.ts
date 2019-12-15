@@ -12,17 +12,18 @@ import DB from "./modules/MongoDB-Helper";
 import Log from "./modules/Logger";
 import SendRule from "./modules/Send-Rule";
 import Router from "./routers/index";
+import SocketRouter from "./routers/socket.index";
 import PassportJWTAuth from "./modules/PassportJWT-Auth";
-
 const app: express.Application = express(); // 서버 객체
-
 const options = {
 	// SSL 인증서
 	key: readFileSync("./ssl/key.pem"),
 	cert: readFileSync("./ssl/cert.pem")
 };
 
-https.createServer(options, app).listen(process.env.PORT || 3000, () => {
+const server = https.createServer(options, app);
+
+server.listen(process.env.PORT || 3000, () => {
 	// HTTPS
 	Log.c("SERVER OPEN");
 	Log.c(`PORT : ${process.env.PORT || 3000}`);
@@ -45,6 +46,7 @@ app.get("/page", (req, res) => {
 	res.sendfile("public/page.html");
 }); // TEST CODE
 
+SocketRouter(server); // socket.io 라우터 연결
 app.use(Router); // 라우터 연결
 app.use(SendRule.autoErrorHandler()); // 에러 핸들링
 
