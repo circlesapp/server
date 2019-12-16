@@ -47,32 +47,33 @@ let interviewRoomManager = new InterviewRoomManager();
 const socketRouter: SocketRouter = (io: SocketIO.Server, socket: SocketIO.Socket): void => {
 	socket.on("interview.startInterview", (data: clubnameRequest) => {
 		if (interviewRoomManager.checkRedundancy(data.clubname)) {
-			socket.emit("interview.getInterviewList", { result: false, message: "이미 시작된 면접입니다." } as InterviewResponse);
+			socket.emit("interview.startInterview", { result: false, message: "이미 시작된 면접입니다." } as InterviewResponse);
 		} else {
 			interviewRoomManager.startInterview(data.clubname, data.interviewers);
+			socket.emit("interview.startInterview", { result: true, message: "면접 생성 성공" } as InterviewResponse);
 		}
 	});
 	socket.on("interview.closeInterview", (data: clubnameRequest) => {
 		if (interviewRoomManager.checkRedundancy(data.clubname)) {
 			interviewRoomManager.closeInterview(data.clubname);
-			socket.broadcast.in(data.clubname).emit("interview.closeInterview", { result: true, message: "면접이 끝났습니다." } as InterviewResponse);
+			io.sockets.in(data.clubname).emit("interview.closeInterview", { result: true, message: "면접이 끝났습니다." } as InterviewResponse);
 		} else {
-			socket.emit("interview.getInterviewList", { result: false, message: "면접이 없습니다." } as InterviewResponse);
+			socket.emit("interview.closeInterview", { result: false, message: "면접이 없습니다." } as InterviewResponse);
 		}
 	});
 	socket.on("interview.getInterviewByClubName", (data: clubnameRequest) => {
 		if (interviewRoomManager.checkRedundancy(data.clubname)) {
 			socket.join(data.clubname);
-			socket.emit("interview.getInterviewList", { result: true, message: "면접 가져오기 성공", data: interviewRoomManager.getInterview(data.clubname) } as InterviewResponse);
+			socket.emit("interview.getInterviewByClubName", { result: true, message: "면접 가져오기 성공", data: interviewRoomManager.getInterview(data.clubname) } as InterviewResponse);
 		} else {
-			socket.emit("interview.getInterviewList", { result: false, message: "면접이 없습니다." } as InterviewResponse);
+			socket.emit("interview.getInterviewByClubName", { result: false, message: "면접이 없습니다." } as InterviewResponse);
 		}
 	});
 	socket.on("interview.updateInterviewers", (data: clubnameRequest) => {
 		if (interviewRoomManager.checkRedundancy(data.clubname)) {
 			let interview: InterviewRoom = interviewRoomManager.getInterview(data.clubname);
 			interview.setInterviewers(data.interviewers);
-			socket.broadcast.in(data.clubname).emit("interview.updateInterviewers", { result: true, message: "면접 가져오기 성공", data: interview } as InterviewResponse);
+			socket.broadcast.in(data.clubname).emit("interview.updateInterviewers", { result: true, message: "면접 갱신 성공", data: interview } as InterviewResponse);
 		} else {
 			socket.emit("interview.updateInterviewers", { result: false, message: "면접이 없습니다." } as InterviewResponse);
 		}
