@@ -10,7 +10,9 @@ export type SocketRouter = (io: SocketIO.Server, socket: SocketIO.Socket) => voi
 class SocketIOManager {
 	io: SocketIO.Server;
 	socketRouters: SocketRouter[];
-	constructor() {}
+	constructor() {
+		this.socketRouters = [] as SocketRouter[];
+	}
 	use(socketRouter: SocketRouter) {
 		this.socketRouters.push(socketRouter);
 	}
