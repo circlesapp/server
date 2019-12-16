@@ -3,16 +3,26 @@ import * as SocketIO from "socket.io";
 
 import Log from "../modules/Logger";
 
-export default function(server: Server) {
-	const io = SocketIO(server, { origins: "*:*" });
+import SocketInterview from "./club/interview/interview.socket";
 
-	io.on("connection", socket => {
-		Log.d("Connect Socket IO");
-		socket.on("msg", data => {
-			Log.d(data);
-			socket.emit("msg", data);
+export type SocketRouter = (io: SocketIO.Server, socket: SocketIO.Socket) => void;
+
+class SocketIOManager {
+	io: SocketIO.Server;
+	socketRouters: SocketRouter[];
+	constructor() {}
+	use(socketRouter: SocketRouter) {
+		this.socketRouters.push(socketRouter);
+	}
+	start(server: Server) {
+		this.io = SocketIO(server, { origins: "*:*" });
+		this.io.on("connection", socket => {
+			this.socketRouters.forEach(socketRouter => socketRouter(this.io, socket));
+			socket.on("setClub", data => {});
 		});
-	});
-
-	return io;
+	}
 }
+const socketIOManager = new SocketIOManager();
+socketIOManager.use(SocketInterview);
+
+export default socketIOManager;
