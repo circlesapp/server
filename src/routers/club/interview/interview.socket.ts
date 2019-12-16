@@ -46,9 +46,8 @@ class InterviewRoomManager {
 let interviewRoomManager = new InterviewRoomManager();
 
 const socketRouter: SocketRouter = (io: SocketIO.Server, socket: SocketIO.Socket): void => {
-    Logger.d("socketRouterClear")
 	socket.on("interview_startInterview", (data: clubnameRequest) => {
-		if (interviewRoomManager.checkRedundancy(data.clubname)) {
+		if (!interviewRoomManager.checkRedundancy(data.clubname)) {
 			socket.emit("interview_startInterview", { result: false, message: "이미 시작된 면접입니다." } as InterviewResponse);
 		} else {
 			interviewRoomManager.startInterview(data.clubname, data.interviewers);
@@ -56,7 +55,7 @@ const socketRouter: SocketRouter = (io: SocketIO.Server, socket: SocketIO.Socket
 		}
 	});
 	socket.on("interview_closeInterview", (data: clubnameRequest) => {
-		if (interviewRoomManager.checkRedundancy(data.clubname)) {
+		if (!interviewRoomManager.checkRedundancy(data.clubname)) {
 			interviewRoomManager.closeInterview(data.clubname);
 			io.sockets.in(data.clubname).emit("interview_closeInterview", { result: true, message: "면접이 끝났습니다." } as InterviewResponse);
 		} else {
@@ -64,8 +63,7 @@ const socketRouter: SocketRouter = (io: SocketIO.Server, socket: SocketIO.Socket
 		}
 	});
 	socket.on("interview_getInterviewByClubName", (data: clubnameRequest) => {
-		Logger.d(data.clubname + "가져오기");
-		if (interviewRoomManager.checkRedundancy(data.clubname)) {
+		if (!interviewRoomManager.checkRedundancy(data.clubname)) {
 			socket.join(data.clubname);
 			socket.emit("interview_getInterviewByClubName", { result: true, message: "면접 가져오기 성공", data: interviewRoomManager.getInterview(data.clubname) } as InterviewResponse);
 		} else {
@@ -73,7 +71,7 @@ const socketRouter: SocketRouter = (io: SocketIO.Server, socket: SocketIO.Socket
 		}
 	});
 	socket.on("interview_updateInterviewers", (data: clubnameRequest) => {
-		if (interviewRoomManager.checkRedundancy(data.clubname)) {
+		if (!interviewRoomManager.checkRedundancy(data.clubname)) {
 			let interview: InterviewRoom = interviewRoomManager.getInterview(data.clubname);
 			interview.setInterviewers(data.interviewers);
 			socket.broadcast.in(data.clubname).emit("interview_updateInterviewers", { result: true, message: "면접 갱신 성공", data: interview } as InterviewResponse);
