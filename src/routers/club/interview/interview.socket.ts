@@ -46,6 +46,7 @@ class InterviewRoomManager {
 let interviewRoomManager = new InterviewRoomManager();
 
 const socketRouter: SocketRouter = (io: SocketIO.Server, socket: SocketIO.Socket): void => {
+    Logger.d("socketRouterClear")
 	socket.on("interview_startInterview", (data: clubnameRequest) => {
 		if (interviewRoomManager.checkRedundancy(data.clubname)) {
 			socket.emit("interview_startInterview", { result: false, message: "이미 시작된 면접입니다." } as InterviewResponse);
