@@ -53,6 +53,7 @@ const socketRouter: SocketRouter = (io: SocketIO.Server, socket: SocketIO.Socket
 			socket.emit("interview_startInterview", { result: false, message: "이미 시작된 면접입니다." } as InterviewResponse);
 		} else {
 			let interview = interviewRoomManager.startInterview(data.clubname, data.interviewers);
+			socket.join(data.clubname);
 			io.sockets.in(data.clubname).emit("interview_startInterview", { result: true, message: "면접 생성 성공", data: interview } as InterviewResponse);
 		}
 	});
