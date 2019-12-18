@@ -53,6 +53,7 @@ const socketRouter: SocketRouter = (io: SocketIO.Server, socket: SocketIO.Socket
 			socket.emit("interview_startInterview", { result: false, message: "이미 시작된 면접입니다." } as InterviewResponse);
 		} else {
 			let interview = interviewRoomManager.startInterview(data.clubname, data.interviewers);
+			socket.leaveAll();
 			socket.join(data.clubname);
 			io.sockets.in(data.clubname).emit("interview_startInterview", { result: true, message: "면접 생성 성공", data: interview } as InterviewResponse);
 		}
@@ -66,8 +67,9 @@ const socketRouter: SocketRouter = (io: SocketIO.Server, socket: SocketIO.Socket
 		}
 	});
 	socket.on("interview_getInterviewByClubName", (data: clubnameRequest) => {
+		socket.leaveAll();
+		socket.join(data.clubname);
 		if (!interviewRoomManager.checkRedundancy(data.clubname)) {
-			socket.join(data.clubname);
 			socket.emit("interview_getInterviewByClubName", { result: true, message: "면접 가져오기 성공", data: interviewRoomManager.getInterview(data.clubname) } as InterviewResponse);
 		} else {
 			socket.emit("interview_getInterviewByClubName", { result: false, message: "면접이 없습니다." } as InterviewResponse);
