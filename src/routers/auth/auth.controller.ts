@@ -86,14 +86,10 @@ export const RequestCodedByEmail = (req: Request, res: Response, next: NextFunct
 	let email = req.body.email;
 
 	if (email) {
-		User.findByEmail(email)
-			.then(user => {
-				let code = CertificationManager.registerCertification(user.email);
-				Mailer.sendChangePasswordCode(user.email, code)
-					.then(() => {
-						SendRule.response(res, 200, undefined, "이메일 보내기 성공");
-					})
-					.catch(err => next(err));
+		let code = CertificationManager.registerCertification(email);
+		Mailer.sendChangePasswordCode(email, code)
+			.then(() => {
+				SendRule.response(res, 200, undefined, "이메일 보내기 성공");
 			})
 			.catch(err => next(err));
 	} else {
