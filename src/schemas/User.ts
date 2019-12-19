@@ -39,9 +39,6 @@ export interface IUser {
 	createAt?: Date; // 생성일
 	salt?: string; // 암호화 키
 }
-export interface IUserChangePassword extends IUser {
-	newPassword: string;
-}
 /**
  * @description User 스키마에 대한 메서드 ( 레코드 )
  */
@@ -56,7 +53,7 @@ export interface IUserSchema extends IUser, Document {
 	 * @param {IUserSchema}data newPassword 필드에 바꿀 비밀번호를 입력
 	 * @returns {Promise<IUserSchema>} 작업이 완료 된 후 그 유저를 반환합니다.
 	 */
-	changePassword(data: IUserChangePassword): Promise<IUserSchema>;
+	changePassword(newPassword: string): Promise<IUserSchema>;
 	/**
 	 * @description 이 유저의 정보를 반환합니다.
 	 * @param {IUser}data 유저의 바꿀 정보
@@ -149,10 +146,10 @@ const UserSchema: Schema = new Schema({
 UserSchema.methods.getUserToken = function(this: IUserSchema): string {
 	return (this.constructor as IUserModel).getToken(this);
 };
-UserSchema.methods.changePassword = function(this: IUserSchema, data: IUserChangePassword): Promise<IUserSchema> {
+UserSchema.methods.changePassword = function(this: IUserSchema, newPassword: string): Promise<IUserSchema> {
 	return new Promise<IUserSchema>((resolve, reject) => {
 		(this.constructor as IUserModel)
-			.createPassword(data.newPassword)
+			.createPassword(newPassword)
 			.then((passsalt: PasswordAndSalt) => {
 				this.password = passsalt.password;
 				this.salt = passsalt.salt;

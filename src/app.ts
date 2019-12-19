@@ -52,7 +52,6 @@ app.use(SendRule.autoErrorHandler()); // 에러 핸들링
 
 SocketIOManager.start(server);
 
-
 // app.listen(process.env.PORT || 3000, () => {
 // 	// 서버가 열렸을 시 콜백
 // 	Log.c("SERVER OPEN");

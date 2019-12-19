@@ -1,8 +1,10 @@
 import { Request, Response, NextFunction } from "express";
-import User, { IUser, IUserSchema, IUserChangePassword } from "../../schemas/User";
+import User, { IUser, IUserSchema } from "../../schemas/User";
 import SendRule, { HTTPRequestCode, StatusError } from "../../modules/Send-Rule";
 import * as fs from "fs";
 import Base64ToImage from "../../modules/Base64-To-Image";
+import CertificationManager from "../../modules/Certification-Manager";
+import Mailer from "../../modules/Mailer";
 
 /**
  * @description 회원가입 라우터입니다.
@@ -74,7 +76,30 @@ export const GetProfile = (req: Request, res: Response, next: NextFunction) => {
 		})
 		.catch(err => next(err));
 };
+/**
+ * @description 비밀번호 변경을 위해 메일을 보내는 라우터입니다.
+ * @param {Request}req Express req
+ * @param {Response}res Express res
+ * @param {NextFunction}next Express next
+ */
+export const RequestCodedByEmail = (req: Request, res: Response, next: NextFunction) => {
+	let email = req.body.email;
 
+	if (email) {
+		User.findByEmail(email)
+			.then(user => {
+				let code = CertificationManager.registerCertification(user.email);
+				Mailer.sendChangePasswordCode(user.email, code)
+					.then(() => {
+						SendRule.response(res, 200, undefined, "이메일 보내기 성공");
+					})
+					.catch(err => next(err));
+			})
+			.catch(err => next(err));
+	} else {
+		next(new StatusError(HTTPRequestCode.BAD_REQUEST, "잘못된 요청"));
+	}
+};
 /**
  * @description 비밀번호 변경 라우터입니다.
  * @param {Request}req Express req
@@ -82,13 +107,22 @@ export const GetProfile = (req: Request, res: Response, next: NextFunction) => {
  * @param {NextFunction}next Express next
  */
 export const ChangePassword = (req: Request, res: Response, next: NextFunction) => {
-	let data: IUserChangePassword = req.user as IUserChangePassword;
-	let user: IUserSchema = req.user as IUserSchema;
-	if ("newPassword" in req.body) {
-		data.newPassword = req.body.newPassword;
-		user.changePassword(data)
+	let email = req.body.email;
+	let newPassword = req.body.newPassword;
+	let code: number = req.body.code;
+
+	if (email && newPassword && code) {
+		User.findByEmail(email)
 			.then(user => {
-				SendRule.response(res, 200, user.getUserToken(), "비밀번호 변경 성공");
+				if (CertificationManager.checkCertification(email, code)) {
+					user.changePassword(newPassword)
+						.then(user => {
+							SendRule.response(res, 200, user.getUserToken(), "비밀번호 변경 성공");
+						})
+						.catch(err => next(err));
+				} else {
+					next(new StatusError(HTTPRequestCode.BAD_REQUEST, "잘못된 요청"));
+				}
 			})
 			.catch(err => next(err));
 	} else {
