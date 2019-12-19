@@ -1,9 +1,12 @@
 import * as Nodemailer from "nodemailer";
 import * as SmtpTransport from "nodemailer-smtp-transport";
+import Logger from "./Logger";
 
 class Mailer {
 	transporter: Nodemailer.Transporter;
 	constructor() {
+        Logger.d(process.env.GOOGLE_EMAIl);
+        Logger.d(process.env.GOOGLE_PASSWORD);
 		this.transporter = Nodemailer.createTransport(
 			SmtpTransport({
 				service: "gmail",
