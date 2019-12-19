@@ -2,5 +2,6 @@
 /dist
 /dist.ts
 /ssl
+/keys
 .env
 combined.log
