@@ -38,7 +38,7 @@ class Mailer {
 			from: "admin@hyunwoo.kim",
 			to: email,
 			subject: "circles. 비밀번호 변경",
-			html: `<h1>circles</h1><a href="https://circlesapp.kr/register?token=${code}&email=${email}">비밀번호 변경</a>`
+			html: `<h1>circles</h1><a href="https://circlesapp.kr/passwordchange?token=${code}&email=${email}">비밀번호 변경</a>`
 		});
 	}
 }
