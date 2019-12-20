@@ -29,8 +29,8 @@ class Mailer {
 		return this.transporter.sendMail({
 			from: "admin@hyunwoo.kim",
 			to: email,
-			subject: "circles. 인증번호",
-			html: `<h1>circles</h1><a herf="https://circlesapp.kr/register?token=${code}&email=${email}">회원가입 진행</a>`
+			subject: "circles. 회원가입",
+			html: `<h1>circles</h1><a href="https://circlesapp.kr/register?token=${code}&email=${email}">회원가입 진행</a>`
 		});
 	}
 }
