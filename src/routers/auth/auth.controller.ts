@@ -14,15 +14,20 @@ import Mailer from "../../modules/Mailer";
  */
 export const Register = (req: Request, res: Response, next: NextFunction) => {
 	let data: IUser = req.body as IUser;
+	let code: string = req.body.code;
 	if (User.dataCheck(data)) {
 		User.checkPresentAccount(data.email)
 			.then(check => {
 				if (!check) {
-					User.createUser(data)
-						.then(data => {
-							SendRule.response(res, HTTPRequestCode.CREATE, data.getUserToken(), "회원가입 성공");
-						})
-						.catch(err => next(err));
+					if (CertificationManager.checkCertification(data.email, parseInt(code))) {
+						User.createUser(data)
+							.then(data => {
+								SendRule.response(res, HTTPRequestCode.CREATE, data.getUserToken(), "회원가입 성공");
+							})
+							.catch(err => next(err));
+					} else {
+						next(new StatusError(HTTPRequestCode.UNAUTHORIZED, "인증 실패"));
+					}
 				} else {
 					next(new StatusError(HTTPRequestCode.BAD_REQUEST, "이미 있는 계정"));
 				}
