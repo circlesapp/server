@@ -30,7 +30,7 @@ class Mailer {
 			from: "admin@hyunwoo.kim",
 			to: email,
 			subject: "circles. 인증번호",
-			html: `<h1>circles</h1><p>인증번호: ${code}</p>`
+			html: `<h1>circles</h1><a herf="https://circlesapp.kr/register?token=${code}&email=${email}">회원가입 진행</a>`
 		});
 	}
 }

@@ -30,7 +30,7 @@ class CertificationManager {
 		return false;
 	}
 	registerCertification(email: string): number {
-		this.clearExpiredCertification(5);
+		this.clearExpiredCertification(10);
 		let certificationIndex = this.certificationList.findIndex(certification => certification.email == email);
 		let code = this.createRandomCode();
 		if (certificationIndex == -1) {
