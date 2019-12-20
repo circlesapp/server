@@ -29,7 +29,7 @@ export const Register = (req: Request, res: Response, next: NextFunction) => {
 						next(new StatusError(HTTPRequestCode.UNAUTHORIZED, "인증 실패"));
 					}
 				} else {
-					next(new StatusError(HTTPRequestCode.BAD_REQUEST, "이미 있는 계정"));
+					next(new StatusError(HTTPRequestCode.BAD_REQUEST, "이미 존재하는 계정입니다."));
 				}
 			})
 			.catch(err => next(err));
