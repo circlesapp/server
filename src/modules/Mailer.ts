@@ -25,12 +25,20 @@ class Mailer {
 			}
 		} as Nodemailer.TransportOptions);
 	}
-	sendChangePasswordCode(email: string, code: number): Promise<any> {
+	sendRegister(email: string, code: number): Promise<any> {
 		return this.transporter.sendMail({
 			from: "admin@hyunwoo.kim",
 			to: email,
 			subject: "circles. 회원가입",
 			html: `<h1>circles</h1><a href="https://circlesapp.kr/register?token=${code}&email=${email}">회원가입 진행</a>`
+		});
+	}
+	sendChangePasswordCode(email: string, code: number): Promise<any> {
+		return this.transporter.sendMail({
+			from: "admin@hyunwoo.kim",
+			to: email,
+			subject: "circles. 비밀번호 변경",
+			html: `<h1>circles</h1><a href="https://circlesapp.kr/register?token=${code}&email=${email}">비밀번호 변경</a>`
 		});
 	}
 }

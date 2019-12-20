@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { Login, GetProfile, ChangePassword, Register, WithdrawAccount, ChangeInfomation, ChangeProfileImage, GetAlarm, RemoveAlarm, RemoveAllAlarm, RequestCodedByEmail } from "./auth.controller";
+import { Login, GetProfile, ChangePassword, Register, WithdrawAccount, ChangeInfomation, ChangeProfileImage, GetAlarm, RemoveAlarm, RemoveAllAlarm, RequestRegisterdByEmail, RequestChangePassworddByEmail } from "./auth.controller";
 import PassportJWTAuth from "../../modules/PassportJWT-Auth";
 
 const router = Router();
@@ -7,7 +7,8 @@ const router = Router();
 // Routers
 router.post("/register", Register);
 router.post("/login", Login);
-router.post("/requestCodedByEmail", RequestCodedByEmail);
+router.post("/requestRegisterdByEmail", RequestRegisterdByEmail);
+router.post("/requestChangePassworddByEmail", RequestChangePassworddByEmail);
 router.post("/changePassword", ChangePassword);
 router.post("/getProfile", PassportJWTAuth.authenticate(), GetProfile);
 router.post("/changeInformation", PassportJWTAuth.authenticate(), ChangeInfomation);

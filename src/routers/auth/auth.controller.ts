@@ -87,7 +87,21 @@ export const GetProfile = (req: Request, res: Response, next: NextFunction) => {
  * @param {Response}res Express res
  * @param {NextFunction}next Express next
  */
-export const RequestCodedByEmail = (req: Request, res: Response, next: NextFunction) => {
+export const RequestRegisterdByEmail = (req: Request, res: Response, next: NextFunction) => {
+	let email = req.body.email;
+
+	if (email) {
+		let code = CertificationManager.registerCertification(email);
+		Mailer.sendRegister(email, code)
+			.then(() => {
+				SendRule.response(res, 200, undefined, "이메일 보내기 성공");
+			})
+			.catch(err => next(err));
+	} else {
+		next(new StatusError(HTTPRequestCode.BAD_REQUEST, "잘못된 요청"));
+	}
+};
+export const RequestChangePassworddByEmail = (req: Request, res: Response, next: NextFunction) => {
 	let email = req.body.email;
 
 	if (email) {
