@@ -2,17 +2,19 @@ import { SocketRouter } from "../../socket.index";
 import * as SocketIO from "socket.io";
 import Club from "../../../schemas/Club";
 import Logger from "../../../modules/Logger";
+import { ObjectID } from "bson";
 
-type clubnameRequest = { clubname: string; members?: any[] };
+type clubnameRequest = { clubname: string; members?: MemberAndAttendanc[] };
+type MemberAndAttendanc = { _id: ObjectID; name: string; role: string; attendance: any };
 type AttendanceResponse = { result: boolean; message: string; data?: any };
 class Attendance {
 	clubname: string;
-	members: any[];
+	members: MemberAndAttendanc[];
 	constructor(clubname, members) {
 		this.clubname = clubname;
 		this.members = members;
 	}
-	setMembers(members: any[]) {
+	setMembers(members: MemberAndAttendanc[]) {
 		this.members = members;
 	}
 }
@@ -29,7 +31,7 @@ class AttendanceManager {
 	checkRedundancy(clubname: string) {
 		return this.attendances.findIndex(attendance => attendance.clubname == clubname) == -1;
 	}
-	createAttendance(clubname: string, member: any[]): Attendance {
+	createAttendance(clubname: string, member: MemberAndAttendanc[]): Attendance {
 		let attendance = new Attendance(clubname, member);
 		this.attendances.push(attendance);
 		return attendance;
