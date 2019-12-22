@@ -4,7 +4,7 @@ import * as SocketIO from "socket.io";
 import Log from "../modules/Logger";
 
 import SocketInterview from "./club/interview/interview.socket";
-import SocketAtendance from "./club/attendance/atendance.socket";
+import SocketAtendance from "./club/attendance/attendance.socket";
 
 export type SocketRouter = (io: SocketIO.Server, socket: SocketIO.Socket) => void;
 
