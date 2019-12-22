@@ -4,18 +4,24 @@ import Club from "../../../schemas/Club";
 import Logger from "../../../modules/Logger";
 import { ObjectID } from "bson";
 
-type clubnameRequest = { clubname: string; members?: MemberAndAttendanc[] };
 type MemberAndAttendanc = { _id: ObjectID; name: string; role: string; attendance: any };
+type DateData = { idx: number; date: string; label: string };
+type clubnameRequest = { clubname: string; datas?: MemberAndAttendanc[]; dates?: DateData[] };
 type AttendanceResponse = { result: boolean; message: string; data?: any };
 class Attendance {
 	clubname: string;
-	members: MemberAndAttendanc[];
-	constructor(clubname, members) {
+	datas: MemberAndAttendanc[];
+	dates: DateData[];
+	constructor(clubname, datas, dates) {
 		this.clubname = clubname;
-		this.members = members;
+		this.datas = datas;
+		this.dates = dates;
 	}
-	setMembers(members: MemberAndAttendanc[]) {
-		this.members = members;
+	setDatas(datas: MemberAndAttendanc[]) {
+		this.datas = datas;
+	}
+	setDates(dates: DateData[]) {
+		this.dates = dates;
 	}
 }
 
@@ -31,8 +37,8 @@ class AttendanceManager {
 	checkRedundancy(clubname: string) {
 		return this.attendances.findIndex(attendance => attendance.clubname == clubname) == -1;
 	}
-	createAttendance(clubname: string, member: MemberAndAttendanc[]): Attendance {
-		let attendance = new Attendance(clubname, member);
+	createAttendance(clubname: string, datas: MemberAndAttendanc[], dates: DateData[]): Attendance {
+		let attendance = new Attendance(clubname, datas, dates);
 		this.attendances.push(attendance);
 		return attendance;
 	}
@@ -53,7 +59,7 @@ const socketRouter: SocketRouter = (io: SocketIO.Server, socket: SocketIO.Socket
 		if (!attendanceManager.checkRedundancy(data.clubname)) {
 			socket.emit("attendance_createAttendance", { result: false, message: "이미 생성된 출석입니다." } as AttendanceResponse);
 		} else {
-			let attendance = attendanceManager.createAttendance(data.clubname, data.members);
+			let attendance = attendanceManager.createAttendance(data.clubname, data.datas, data.dates);
 			socket.leaveAll();
 			socket.join(data.clubname);
 			io.sockets.in(data.clubname).emit("attendance_createAttendance", { result: true, message: "면접 생성 성공", data: attendance } as AttendanceResponse);
@@ -79,7 +85,8 @@ const socketRouter: SocketRouter = (io: SocketIO.Server, socket: SocketIO.Socket
 	socket.on("attendance_updateAttendance", (data: clubnameRequest) => {
 		if (!attendanceManager.checkRedundancy(data.clubname)) {
 			let attendance: Attendance = attendanceManager.getAttendance(data.clubname);
-			attendance.setMembers(data.members);
+			attendance.setDatas(data.datas);
+			attendance.setDates(data.dates);
 			socket.broadcast.in(data.clubname).emit("attendance_updateAttendance", { result: true, message: "면접 갱신 성공", data: attendance } as AttendanceResponse);
 		} else {
 			socket.emit("attendance_updateAttendance", { result: false, message: "면접이 없습니다." } as AttendanceResponse);
