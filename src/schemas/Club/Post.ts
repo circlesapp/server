@@ -123,7 +123,7 @@ PostSchema.methods.pushComment = function(this: IPostSchema, user: IUserSchema, 
 							.then(owner => {
 								// FIXME: 텍스트수정바람
 								owner
-									.pushAlarmAndSave({ message: `<b>${user.name}</b>님이 당신의 글에 댓글을 작성하셨습니다.` })
+									.pushAlarmAndSave({ message: `<b>${user.name}</b>님이 댓글을 작성했습니다.` })
 									.then(owner => {
 										resolve(post);
 									})
@@ -164,7 +164,7 @@ PostSchema.methods.toggleLike = function(this: IPostSchema, user: IUserSchema): 
 						.then(owner => {
 							// FIXME: 텍스트수정바람
 							owner
-								.pushAlarmAndSave({ message: `<b>${user.name}</b> 님이 당신의 글에 좋아요를 눌렀습니다.` })
+								.pushAlarmAndSave({ message: `<b>${user.name}</b>님이 좋아요를 추가했습니다.` })
 								.then(owner => {
 									resolve(post);
 								})
