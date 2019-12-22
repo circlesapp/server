@@ -282,7 +282,7 @@ UserSchema.methods.leaveClub = function(this: IUserSchema, club: IClubSchema): P
 			let idx = this.clubs.findIndex((clubid: ObjectID) => club._id.equals(clubid));
 			this.clubs.splice(idx, 1);
 			this.pushAlarm({
-				message: `<b>${club.name}</b> 동아리에 탈퇴했습니다.`
+				message: `<b>${club.name}</b> 동아리를 탈퇴했습니다.`
 			})
 				.save()
 				.then(user => {

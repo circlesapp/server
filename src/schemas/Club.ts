@@ -263,7 +263,7 @@ ClubSchema.methods.acceptApplicant = function(this: IClubSchema, applicantId: Ob
 				User.findById(applicant.owner)
 					.then(user => {
 						user.pushAlarm({
-							message: `<b>${this.name}</b> 동아리 지원서가 합격했습니다.`
+							message: `<b>${this.name}</b> 지원서가 승인되었습니다.`
 						})
 							.removeApplicant(applicant)
 							.then(user => {
@@ -287,7 +287,7 @@ ClubSchema.methods.rejectApplicant = function(this: IClubSchema, applicantId: Ob
 				User.findById(applicant.owner)
 					.then(user => {
 						user.pushAlarm({
-							message: `<b>${this.name}</b> 동아리 지원서가 거절당했습니다.`
+							message: `죄송합니다. <b>${this.name}</b> 지원서가 거절되었습니다.`
 						})
 							.removeApplicant(applicant)
 							.then(user => {
@@ -324,7 +324,7 @@ ClubSchema.statics.deleteClub = function(this: IClubModel, club: IClubSchema): P
 					let idx = user.clubs.findIndex(clubid => club._id.equals(clubid));
 					if (idx != -1) user.clubs.splice(idx, 1);
 					return user.pushAlarm({
-						message: `<b>${club.name}</b> 동아리가 폐쇄됐습니다.`
+						message: `<b>${club.name}</b> 동아리가 폐쇄되었습니다.`
 					});
 				});
 				User.updateMany({}, users)
@@ -360,7 +360,7 @@ ClubSchema.statics.createClub = function(this: IClubModel, owner: IUserSchema, d
 						owner.clubs.push(club._id);
 						owner
 							.pushAlarm({
-								message: `<b>${data.name}</b> 동아리가 생성됐습니다.`
+								message: `<b>${data.name}</b> 동아리가 생성되었습니다.`
 							})
 							.save()
 							.then(user => resolve(club))
