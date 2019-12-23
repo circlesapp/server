@@ -79,8 +79,8 @@ const socketRouter: SocketRouter = (io: SocketIO.Server, socket: SocketIO.Socket
 								[
 									{ date: "2019-01-01", label: "출석부1" },
 									{ date: "2019-01-02", label: "출석부2" },
-									{ date: "2019-01-03", label: "출석부3" }
-									{ date: "2019-01-04", label: "출석부4" }
+									{ date: "2019-01-03", label: "출석부3" },
+									{ date: "2019-01-04", label: "출석부4" },
 									{ date: "2019-01-05", label: "출석부5" }
 								]
 							);
