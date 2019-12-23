@@ -31,6 +31,7 @@ export interface IUser {
 	email: string; // 이메일
 	password: string; // 비밀번호
 	name: string;
+	message: string;
 	applicants: ObjectID[];
 	alarms: Alarm[]; // 알람 스택
 	imgPath: string; // 프로필 사진
@@ -38,6 +39,7 @@ export interface IUser {
 	lastLogin?: Date; // 마지막 로그인 시간
 	createAt?: Date; // 생성일
 	salt?: string; // 암호화 키
+	isWithdraw: boolean;
 }
 /**
  * @description User 스키마에 대한 메서드 ( 레코드 )
@@ -135,13 +137,15 @@ const UserSchema: Schema = new Schema({
 	email: { type: String, required: true, unique: true },
 	password: { type: String, required: true },
 	name: { type: String, required: true },
+	message: { type: String, default: "" },
 	applicants: [{ type: ObjectID, ref: "Applicant" }],
 	alarms: { type: Array, default: [] },
 	imgPath: { type: String, default: "" },
 	pushSubscription: { type: Object, default: {} },
 	lastLogin: { type: Date, default: Date.now },
 	createAt: { type: Date, default: Date.now },
-	salt: { type: String, default: process.env.SECRET_KEY || "SECRET" }
+	salt: { type: String, default: process.env.SECRET_KEY || "SECRET" },
+	isWithdraw: { type: Boolean, default: false }
 });
 UserSchema.methods.getUserToken = function(this: IUserSchema): string {
 	return (this.constructor as IUserModel).getToken(this);
@@ -169,7 +173,8 @@ UserSchema.methods.changeInfomation = function(this: IUserSchema, data: IUser): 
 	return this.save();
 };
 UserSchema.methods.withdrawAccount = function(this: IUserSchema): Promise<any> {
-	return this.remove();
+	this.isWithdraw = true;
+	return this.save();
 };
 UserSchema.methods.updateLoginTime = function(this: IUserSchema): Promise<IUserSchema> {
 	this.lastLogin = new Date();
@@ -311,26 +316,30 @@ UserSchema.statics.loginValidation = function(this: IUserModel, data: IUser, fir
 	return new Promise<IUserSchema>((resolve, reject) => {
 		this.findByEmail(data.email)
 			.then((user: IUserSchema) => {
-				user.updateLoginTime()
-					.then(user => {
-						if (first) {
-							crypto.pbkdf2(data.password, user.salt, 10000, 64, "sha512", (err, key) => {
-								if (err) reject(err);
-								if (key.toString("base64") == user.password) {
+				if (!user.isWithdraw) {
+					user.updateLoginTime()
+						.then(user => {
+							if (first) {
+								crypto.pbkdf2(data.password, user.salt, 10000, 64, "sha512", (err, key) => {
+									if (err) reject(err);
+									if (key.toString("base64") == user.password) {
+										resolve(user);
+									} else {
+										reject(new StatusError(HTTPRequestCode.FORBIDDEN, "비밀번호가 일치하지 않습니다."));
+									}
+								});
+							} else {
+								if (data.password == user.password) {
 									resolve(user);
 								} else {
 									reject(new StatusError(HTTPRequestCode.FORBIDDEN, "비밀번호가 일치하지 않습니다."));
 								}
-							});
-						} else {
-							if (data.password == user.password) {
-								resolve(user);
-							} else {
-								reject(new StatusError(HTTPRequestCode.FORBIDDEN, "비밀번호가 일치하지 않습니다."));
 							}
-						}
-					})
-					.catch(err => reject(err));
+						})
+						.catch(err => reject(err));
+				} else {
+					reject(new StatusError(HTTPRequestCode.FORBIDDEN, "삭제된 계정입니다."));
+				}
 			})
 			.catch(err => reject(err));
 	});
