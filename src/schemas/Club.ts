@@ -330,6 +330,7 @@ ClubSchema.statics.deleteClub = function(this: IClubModel, club: IClubSchema): P
 				});
 				User.updateMany({ _id: usersId }, fixUsers)
 					.then(users => {
+						console.log(users);
 						this.resetClub(club)
 							.then(club => {
 								club.remove()
