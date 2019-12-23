@@ -73,7 +73,38 @@ const socketRouter: SocketRouter = (io: SocketIO.Server, socket: SocketIO.Socket
 										_id: member._id,
 										name: member.name,
 										role: "-",
-										attendance: []
+										attendance: [
+											{
+												name: "2019-01-01",
+												state: 1,
+												color: "",
+												comment: ``
+											},
+											{
+												name: "2019-01-02",
+												state: 1,
+												color: "",
+												comment: ``
+											},
+											{
+												name: "2019-01-03",
+												state: 1,
+												color: "",
+												comment: ``
+											},
+											{
+												name: "2019-01-04",
+												state: 1,
+												color: "",
+												comment: ``
+											},
+											{
+												name: "2019-01-05",
+												state: 1,
+												color: "",
+												comment: ``
+											}
+										]
 									};
 								}),
 								[
