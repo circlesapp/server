@@ -76,31 +76,31 @@ const socketRouter: SocketRouter = (io: SocketIO.Server, socket: SocketIO.Socket
 										attendance: [
 											{
 												name: "2019-01-01",
-												state: 1,
+												state: 2,
 												color: "",
 												comment: ``
 											},
 											{
 												name: "2019-01-02",
-												state: 1,
+												state: 2,
 												color: "",
 												comment: ``
 											},
 											{
 												name: "2019-01-03",
-												state: 1,
+												state: 2,
 												color: "",
 												comment: ``
 											},
 											{
 												name: "2019-01-04",
-												state: 1,
+												state: 2,
 												color: "",
 												comment: ``
 											},
 											{
 												name: "2019-01-05",
-												state: 1,
+												state: 2,
 												color: "",
 												comment: ``
 											}
