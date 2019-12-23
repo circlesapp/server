@@ -317,17 +317,17 @@ ClubSchema.statics.resetClub = async function(this: IClubModel, club: IClubSchem
 ClubSchema.statics.deleteClub = function(this: IClubModel, club: IClubSchema): Promise<IClubSchema> {
 	return new Promise<IClubSchema>((resolve, reject) => {
 		let usersId = club.members.map((member: Member) => member.user);
-		usersId.push(club.owner);
+		if (usersId.findIndex(x => x.equals(club.owner)) == -1) usersId.push(club.owner);
 		User.find({ _id: usersId })
 			.then(users => {
-				users.map((user: IUserSchema) => {
+				let promiseArray = users.map(user => {
 					let idx = user.clubs.findIndex(clubid => club._id.equals(clubid));
 					if (idx != -1) user.clubs.splice(idx, 1);
-					return user.pushAlarm({
+					return user.pushAlarmAndSave({
 						message: `<b>${club.name}</b> 동아리가 폐쇄되었습니다.`
 					});
 				});
-				User.updateMany({}, users)
+				Promise.all(promiseArray)
 					.then(users => {
 						this.resetClub(club)
 							.then(club => {
