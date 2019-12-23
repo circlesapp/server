@@ -323,14 +323,13 @@ ClubSchema.statics.deleteClub = function(this: IClubModel, club: IClubSchema): P
 				let fixUsers = users.map((user: IUserSchema) => {
 					let idx = user.clubs.findIndex(clubid => club._id.equals(clubid));
 					if (idx != -1) user.clubs.splice(idx, 1);
-					console.log(user.clubs);
 					return user.pushAlarm({
 						message: `<b>${club.name}</b> 동아리가 폐쇄되었습니다.`
 					});
-				});
+                });
+                console.log(fixUsers)
 				User.updateMany({ _id: usersId }, fixUsers)
 					.then(users => {
-						console.log(users);
 						this.resetClub(club)
 							.then(club => {
 								club.remove()
