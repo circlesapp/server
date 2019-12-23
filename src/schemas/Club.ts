@@ -326,7 +326,8 @@ ClubSchema.statics.deleteClub = function(this: IClubModel, club: IClubSchema): P
 					return user.pushAlarmAndSave({
 						message: `<b>${club.name}</b> 동아리가 폐쇄되었습니다.`
 					});
-				});
+                });
+                // FIXME: 쿼리 수 최적화
 				Promise.all(promiseArray)
 					.then(users => {
 						this.resetClub(club)
