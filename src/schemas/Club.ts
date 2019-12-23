@@ -320,16 +320,15 @@ ClubSchema.statics.deleteClub = function(this: IClubModel, club: IClubSchema): P
 		if (usersId.findIndex(x => x.equals(club.owner)) == -1) usersId.push(club.owner);
 		User.find({ _id: usersId })
 			.then(users => {
-				users.forEach(user => {
+				let promiseArray = users.map(user => {
 					let idx = user.clubs.findIndex(clubid => club._id.equals(clubid));
 					if (idx != -1) user.clubs.splice(idx, 1);
 					console.log(user);
-					// user.pushAlarm({
-					// 	message: `<b>${club.name}</b> 동아리가 폐쇄되었습니다.`
-					// });
-                });
-                console.log(users)
-				User.insertMany(users)
+					return user.pushAlarmAndSave({
+						message: `<b>${club.name}</b> 동아리가 폐쇄되었습니다.`
+					});
+				});
+				Promise.all(promiseArray)
 					.then(users => {
 						this.resetClub(club)
 							.then(club => {
