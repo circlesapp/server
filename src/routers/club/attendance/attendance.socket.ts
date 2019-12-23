@@ -23,6 +23,9 @@ class Attendance {
 	setDates(dates: DateData[]) {
 		this.dates = dates;
 	}
+	toJSON(): Object {
+		return { clubname: this.clubname, datas: this.datas, dates: this.dates };
+	}
 }
 
 class AttendanceManager {
@@ -62,7 +65,7 @@ const socketRouter: SocketRouter = (io: SocketIO.Server, socket: SocketIO.Socket
 			let attendance = attendanceManager.createAttendance(data.clubname, data.datas, data.dates);
 			socket.leaveAll();
 			socket.join(data.clubname);
-			io.sockets.in(data.clubname).emit("attendance_createAttendance", { result: true, message: "면접 생성 성공", data: attendance } as AttendanceResponse);
+			io.sockets.in(data.clubname).emit("attendance_createAttendance", { result: true, message: "면접 생성 성공", data: attendance.toJSON() } as AttendanceResponse);
 		}
 	});
 	socket.on("attendance_deleteAttendance", (data: clubnameRequest) => {
@@ -77,7 +80,7 @@ const socketRouter: SocketRouter = (io: SocketIO.Server, socket: SocketIO.Socket
 		socket.leaveAll();
 		socket.join(data.clubname);
 		if (!attendanceManager.checkRedundancy(data.clubname)) {
-			socket.emit("attendance_getAttendanceByClubName", { result: true, message: "면접 가져오기 성공", data: attendanceManager.getAttendance(data.clubname) } as AttendanceResponse);
+			socket.emit("attendance_getAttendanceByClubName", { result: true, message: "면접 가져오기 성공", data: attendanceManager.getAttendance(data.clubname).toJSON() } as AttendanceResponse);
 		} else {
 			socket.emit("attendance_getAttendanceByClubName", { result: false, message: "면접이 없습니다." } as AttendanceResponse);
 		}
@@ -87,7 +90,7 @@ const socketRouter: SocketRouter = (io: SocketIO.Server, socket: SocketIO.Socket
 			let attendance: Attendance = attendanceManager.getAttendance(data.clubname);
 			attendance.setDatas(data.datas);
 			attendance.setDates(data.dates);
-			socket.broadcast.in(data.clubname).emit("attendance_updateAttendance", { result: true, message: "면접 갱신 성공", data: attendance } as AttendanceResponse);
+			socket.broadcast.in(data.clubname).emit("attendance_updateAttendance", { result: true, message: "면접 갱신 성공", data: attendance.toJSON() } as AttendanceResponse);
 		} else {
 			socket.emit("attendance_updateAttendance", { result: false, message: "면접이 없습니다." } as AttendanceResponse);
 		}
