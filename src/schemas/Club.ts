@@ -328,6 +328,7 @@ ClubSchema.statics.deleteClub = function(this: IClubModel, club: IClubSchema): P
 					// 	message: `<b>${club.name}</b> 동아리가 폐쇄되었습니다.`
 					// });
                 });
+                console.log(users)
 				User.insertMany(users)
 					.then(users => {
 						this.resetClub(club)
