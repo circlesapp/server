@@ -4,20 +4,20 @@ import Club from "../../../schemas/Club";
 import Logger from "../../../modules/Logger";
 import { ObjectID } from "bson";
 
-type MemberAndAttendanc = { _id: ObjectID; name: string; role: string; attendance: any };
-type DateData = { idx: number; date: string; label: string };
-type clubnameRequest = { clubname: string; datas?: MemberAndAttendanc[]; dates?: DateData[] };
+type MemberAndAttendance = { _id: ObjectID; name: string; role: string; attendance: any };
+type DateData = { date: string; label: string };
+type clubnameRequest = { clubname: string; datas?: MemberAndAttendance[]; dates?: DateData[] };
 type AttendanceResponse = { result: boolean; message: string; data?: any };
 class Attendance {
 	clubname: string;
-	datas: MemberAndAttendanc[];
+	datas: MemberAndAttendance[];
 	dates: DateData[];
-	constructor(clubname, datas, dates) {
+	constructor(clubname, datas: MemberAndAttendance[], dates) {
 		this.clubname = clubname;
 		this.datas = datas;
 		this.dates = dates;
 	}
-	setDatas(datas: MemberAndAttendanc[]) {
+	setDatas(datas: MemberAndAttendance[]) {
 		this.datas = datas;
 	}
 	setDates(dates: DateData[]) {
@@ -40,7 +40,7 @@ class AttendanceManager {
 	checkRedundancy(clubname: string) {
 		return this.attendances.findIndex(attendance => attendance.clubname == clubname) == -1;
 	}
-	createAttendance(clubname: string, datas: MemberAndAttendanc[], dates: DateData[]): Attendance {
+	createAttendance(clubname: string, datas: MemberAndAttendance[], dates: DateData[]): Attendance {
 		let attendance = new Attendance(clubname, datas, dates);
 		this.attendances.push(attendance);
 		return attendance;
@@ -62,10 +62,39 @@ const socketRouter: SocketRouter = (io: SocketIO.Server, socket: SocketIO.Socket
 		if (!attendanceManager.checkRedundancy(data.clubname)) {
 			socket.emit("attendance_createAttendance", { result: false, message: "이미 생성된 출석입니다." } as AttendanceResponse);
 		} else {
-			let attendance = attendanceManager.createAttendance(data.clubname, data.datas, data.dates);
-			socket.leaveAll();
-			socket.join(data.clubname);
-			io.sockets.in(data.clubname).emit("attendance_createAttendance", { result: true, message: "면접 생성 성공", data: attendance.toJSON() } as AttendanceResponse);
+			Club.findByName(data.clubname)
+				.then(club => {
+					club.getClubMembers()
+						.then(members => {
+							let attendance = attendanceManager.createAttendance(
+								data.clubname,
+								members.map(member => {
+									return {
+										_id: member._id,
+										name: member.name,
+										role: "-",
+										attendance: []
+									};
+								}),
+								[
+									{ date: "2019-01-01", label: "출석부1" },
+									{ date: "2019-01-02", label: "출석부2" },
+									{ date: "2019-01-03", label: "출석부3" }
+									{ date: "2019-01-04", label: "출석부4" }
+									{ date: "2019-01-05", label: "출석부5" }
+								]
+							);
+							socket.leaveAll();
+							socket.join(data.clubname);
+							io.sockets.in(data.clubname).emit("attendance_createAttendance", { result: true, message: "면접 생성 성공", data: attendance.toJSON() } as AttendanceResponse);
+						})
+						.catch(err => {
+							socket.emit("attendance_deleteAttendance", { result: false, message: "잘못된 요청" } as AttendanceResponse);
+						});
+				})
+				.catch(err => {
+					socket.emit("attendance_deleteAttendance", { result: false, message: "잘못된 요청" } as AttendanceResponse);
+				});
 		}
 	});
 	socket.on("attendance_deleteAttendance", (data: clubnameRequest) => {
