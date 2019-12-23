@@ -155,7 +155,7 @@ export const ChangeInfomation = (req: Request, res: Response, next: NextFunction
 	let user: IUserSchema = req.user as IUserSchema;
 	user.changeInfomation(data)
 		.then(user => {
-			SendRule.response(res, 200, undefined, "정보 변경 성공");
+			SendRule.response(res, 200, user, "정보 변경 성공");
 		})
 		.catch(err => next(err));
 };
