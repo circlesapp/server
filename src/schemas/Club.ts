@@ -150,7 +150,7 @@ ClubSchema.methods.changeInfomation = function(this: IClubSchema, data: IClub): 
 
 ClubSchema.methods.getClubMembers = function(this: IClubSchema): Promise<IUserSchema[]> {
 	return new Promise<IUserSchema[]>((resolve, reject) => {
-		User.find({ _id: this.members.map(user => user.user) }, { name: 1, imgPath: 1, email: 1 })
+		User.find({ _id: this.members.map(user => user.user) }, { name: 1, imgPath: 1, email: 1, message: 1 })
 			.sort({ createAt: -1 })
 			.then(users => {
 				resolve(users);
@@ -160,7 +160,7 @@ ClubSchema.methods.getClubMembers = function(this: IClubSchema): Promise<IUserSc
 };
 ClubSchema.methods.getDetailMembers = function(this: IClubSchema): Promise<Member[]> {
 	return new Promise<Member[]>((resolve, reject) => {
-		this.populate({ path: "members.user", model: User, select: "name email imgPath" })
+		this.populate({ path: "members.user", model: User, select: "name email imgPath message" })
 			.execPopulate()
 			.then(club => resolve(club.members))
 			.catch(err => reject(err));

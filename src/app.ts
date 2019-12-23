@@ -15,7 +15,7 @@ import Router from "./routers/index";
 import SocketIOManager from "./routers/socket.index";
 import PassportJWTAuth from "./modules/PassportJWT-Auth";
 
-const app: express.Application = express(); // 서버 객체
+const app: express.Application = express(); // 서버
 const options = {
 	// SSL 인증서
 	key: readFileSync("./ssl/key.pem"),
