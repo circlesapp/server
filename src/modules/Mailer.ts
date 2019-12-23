@@ -37,13 +37,13 @@ class Mailer {
 					<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 					<meta http-equiv="X-UA-Compatible" content="ie=edge" />
 					<title>circles. 계정 만들기</title>
-					<link rel="stylesheet" href="https://raw.githubusercontent.com/potyt/fonts/master/macfonts/Avenir/Avenir-Black.ttf" />
+					<link rel="stylesheet" href="https://raw.githubusercontent.com/potyt/fonts/master/macfonts/AvenirBlack/AvenirBlack-Black.ttf" />
 					<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@1.0/nanumsquare.css" />
 				</head>
 				<body>
 					<header style="display:-webkit-flex;display:-ms-flexbox;display:flex;justify-content:flex-start;align-items:center;">
 						<a href="https://circlesapp.kr" style="margin-right:4px"><img src="https://circlesapp.kr/logo_64.png" alt="cirlces." title="circles." width="40px" height="40px"/></a>
-						<span style="font-family:'Avenir','Trebuchet MS',Helvetica,sans-serif;font-size:30px;">
+						<span style="font-family:'AvenirBlack','Trebuchet MS',Helvetica,sans-serif;font-size:30px;">
 							circles.
 						</span>
 					</header>
@@ -57,7 +57,7 @@ class Mailer {
 						</p>
 						<a href="https://circlesapp.kr/register?token=${code}&email=${email}" target="_blank" style="padding:6px 20px;color:white;font-size:22px;font-family:'NanumSquare',sans-serif;text-decoration:none;border:none;border-radius:5px;background:#568cff;box-shadow:0 2px 5px rgba(0,0,0,0.4)">계정 만들기</a>
 					</div>
-					<footer style="text-align:center;font-family:'Avenir','Trebuchet MS',Helvetica,sans-serif;font-size:20px;color:#757575;">
+					<footer style="text-align:center;font-family:'AvenirBlack','Trebuchet MS',Helvetica,sans-serif;font-size:20px;color:#757575;">
 						circles.
 					</footer>
 				</body>
@@ -76,13 +76,13 @@ class Mailer {
 					<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 					<meta http-equiv="X-UA-Compatible" content="ie=edge" />
 					<title>circles. 비밀번호 재설정</title>
-					<link rel="stylesheet" href="https://raw.githubusercontent.com/potyt/fonts/master/macfonts/Avenir/Avenir-Black.ttf" />
+					<link rel="stylesheet" href="https://raw.githubusercontent.com/potyt/fonts/master/macfonts/AvenirBlack/AvenirBlack-Black.ttf" />
 					<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@1.0/nanumsquare.css" />
 				</head>
 				<body>
 					<header style="display:-webkit-flex;display:-ms-flexbox;display:flex;justify-content:flex-start;align-items:center;">
 						<a href="https://circlesapp.kr" style="margin-right:4px"><img src="https://circlesapp.kr/logo_64.png" alt="cirlces." title="circles." width="40px" height="40px"/></a>
-						<span style="font-family:'Avenir','Trebuchet MS',Helvetica,sans-serif;font-size:30px;">
+						<span style="font-family:'AvenirBlack','Trebuchet MS',Helvetica,sans-serif;font-size:30px;">
 							circles.
 						</span>
 					</header>
@@ -96,7 +96,7 @@ class Mailer {
 						</p>
 						<a href="https://circlesapp.kr/passwordchange?token=${code}&email=${email}" target="_blank" style="padding:6px 20px;color:white;font-size:22px;font-family:'NanumSquare',sans-serif;text-decoration:none;border:none;border-radius:5px;background:#568cff;box-shadow:0 2px 5px rgba(0,0,0,0.4)">비밀번호 재설정</a>
 					</div>
-					<footer style="text-align:center;font-family:'Avenir','Trebuchet MS',Helvetica,sans-serif;font-size:20px;color:#757575;">
+					<footer style="text-align:center;font-family:'AvenirBlack','Trebuchet MS',Helvetica,sans-serif;font-size:20px;color:#757575;">
 						circles.
 					</footer>
 				</body>
