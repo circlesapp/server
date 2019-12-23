@@ -318,6 +318,7 @@ ClubSchema.statics.deleteClub = function(this: IClubModel, club: IClubSchema): P
 	return new Promise<IClubSchema>((resolve, reject) => {
 		let usersId = club.members.map((member: Member) => member.user);
 		usersId.push(club.owner);
+		console.log(usersId);
 		User.find({ _id: usersId })
 			.then(users => {
 				users.map((user: IUserSchema) => {
