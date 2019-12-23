@@ -322,6 +322,7 @@ ClubSchema.statics.deleteClub = function(this: IClubModel, club: IClubSchema): P
 		User.find({ _id: usersId })
 			.then(users => {
 				users.map((user: IUserSchema) => {
+                    console.log(user.clubs)
 					let idx = user.clubs.findIndex(clubid => club._id.equals(clubid));
 					if (idx != -1) user.clubs.splice(idx, 1);
 					return user.pushAlarmAndSave({
