@@ -42,7 +42,7 @@ class Mailer {
 				</head>
 				<body>
 					<header style="display:-webkit-flex;display:-ms-flexbox;display:flex;justify-content:flex-start;align-items:center;">
-						<a href="https://circlesapp.kr" style="margin-right:4px"><img src="https://circlesapp.kr/logo_192.png" alt="cirlces." title="circles." width="40px" height="40px"/></a>
+						<a href="https://circlesapp.kr" style="margin-right:4px"><img src="https://circlesapp.kr/logo_64.png" alt="cirlces." title="circles." width="40px" height="40px"/></a>
 						<span style="font-family:'Avenir','Trebuchet MS',Helvetica,sans-serif;font-size:30px;">
 							circles.
 						</span>
@@ -81,7 +81,7 @@ class Mailer {
 				</head>
 				<body>
 					<header style="display:-webkit-flex;display:-ms-flexbox;display:flex;justify-content:flex-start;align-items:center;">
-						<a href="https://circlesapp.kr" style="margin-right:4px"><img src="https://circlesapp.kr/logo_192.png" alt="cirlces." title="circles." width="40px" height="40px"/></a>
+						<a href="https://circlesapp.kr" style="margin-right:4px"><img src="https://circlesapp.kr/logo_64.png" alt="cirlces." title="circles." width="40px" height="40px"/></a>
 						<span style="font-family:'Avenir','Trebuchet MS',Helvetica,sans-serif;font-size:30px;">
 							circles.
 						</span>
