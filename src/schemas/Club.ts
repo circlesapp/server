@@ -317,7 +317,7 @@ ClubSchema.statics.resetClub = async function(this: IClubModel, club: IClubSchem
 ClubSchema.statics.deleteClub = function(this: IClubModel, club: IClubSchema): Promise<IClubSchema> {
 	return new Promise<IClubSchema>((resolve, reject) => {
 		let usersId = club.members.map((member: Member) => member.user);
-		usersId.push(club.owner);
+		if (usersId.findIndex(x => x.equals(club.owner)) == -1) usersId.push(club.owner);
 		User.find({ _id: usersId })
 			.then(users => {
 				users.forEach(user => {
