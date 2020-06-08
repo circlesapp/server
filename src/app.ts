@@ -5,6 +5,8 @@ import * as compression from "compression";
 import * as morgan from "morgan";
 import { readFileSync } from "fs";
 import * as https from "https";
+import * as http from "http";
+import * as history from "connect-history-api-fallback";
 
 import "dotenv/config";
 
@@ -16,14 +18,15 @@ import SocketIOManager from "./routers/socket.index";
 import PassportJWTAuth from "./modules/PassportJWT-Auth";
 
 const app: express.Application = express(); // 서버
-const options = {
-	// SSL 인증서
-	key: readFileSync("./ssl/key.pem"),
-	cert: readFileSync("./ssl/cert.pem")
-};
+// const options = {
+// 	// SSL 인증서
+// 	key: readFileSync("./ssl/key.pem"),
+// 	cert: readFileSync("./ssl/cert.pem"),
+// };
 
-const server = https.createServer(options, app);
+// const server = https.createServer(options, app);
 
+const server = http.createServer(app);
 server.listen(process.env.PORT || 3000, () => {
 	// HTTPS
 	Log.c("SERVER OPEN");
@@ -42,6 +45,8 @@ app.use(PassportJWTAuth.getInitialize()); // Passport 기본 세팅 미들웨어
 app.use(express.static("public")); // public 폴더의 파일을 제공함
 app.use(express.urlencoded({ limit: "20mb" })); // urlencode 지원
 app.use(express.json({ limit: "20mb" })); // json 지원
+
+app.use(history()); // FIXME: 안됨
 
 app.get("/page", (req, res) => {
 	res.sendfile("public/page.html");

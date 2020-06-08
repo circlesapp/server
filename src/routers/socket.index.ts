@@ -1,4 +1,5 @@
 import { Server } from "https";
+import { Server as HTTPServer } from "http";
 import * as SocketIO from "socket.io";
 
 import Log from "../modules/Logger";
@@ -17,11 +18,11 @@ class SocketIOManager {
 	use(socketRouter: SocketRouter) {
 		this.socketRouters.push(socketRouter);
 	}
-	start(server: Server) {
+	start(server: Server | HTTPServer) {
 		this.io = SocketIO(server, { origins: "*:*" });
-		this.io.on("connection", socket => {
+		this.io.on("connection", (socket) => {
 			Log.d("SOCKET CONNECT");
-			this.socketRouters.forEach(socketRouter => socketRouter(this.io, socket));
+			this.socketRouters.forEach((socketRouter) => socketRouter(this.io, socket));
 		});
 	}
 }
