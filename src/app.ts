@@ -46,7 +46,7 @@ app.use(express.static("public")); // public 폴더의 파일을 제공함
 app.use(express.urlencoded({ limit: "20mb" })); // urlencode 지원
 app.use(express.json({ limit: "20mb" })); // json 지원
 
-app.use(history()); // FIXME: 안됨
+app.use(history());
 
 app.get("/page", (req, res) => {
 	res.sendfile("public/page.html");
