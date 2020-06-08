@@ -1,14 +1,16 @@
 import * as Nodemailer from "nodemailer";
 import * as GoogleAuth from "google-auth-library";
-import secret from "../../keys/mail";
 import Logger from "./Logger";
 
 class Mailer {
 	transporter: Nodemailer.Transporter;
+	client_id = process.env.MAIL_CLIENT_ID || "";
+	client_secret = process.env.MAIL_CLIENT_SECRET || "";
+	refresh_token = process.env.MAIL_REFRESH_TOKEN || "";
 	constructor() {
-		const oauth2Client = new GoogleAuth.OAuth2Client(secret.client_id, secret.client_secret, "https://developers.google.com/oauthplayground");
+		const oauth2Client = new GoogleAuth.OAuth2Client(this.client_id, this.client_secret, "https://developers.google.com/oauthplayground");
 		oauth2Client.setCredentials({
-			refresh_token: secret.refresh_token
+			refresh_token: this.refresh_token,
 		});
 
 		this.transporter = Nodemailer.createTransport({
@@ -18,11 +20,11 @@ class Mailer {
 			auth: {
 				type: "OAuth2",
 				user: "admin@hyunwoo.kim",
-				clientId: secret.client_id,
-				clientSecret: secret.client_secret,
-				refreshToken: secret.refresh_token,
-				accessToken: oauth2Client.getAccessToken()
-			}
+				clientId: this.client_id,
+				clientSecret: this.client_secret,
+				refreshToken: this.refresh_token,
+				accessToken: oauth2Client.getAccessToken(),
+			},
 		} as Nodemailer.TransportOptions);
 	}
 	sendRegister(email: string, code: number): Promise<any> {
@@ -61,7 +63,7 @@ class Mailer {
 						circles.
 					</footer>
 				</body>
-			</html>`
+			</html>`,
 		});
 	}
 	sendChangePasswordCode(email: string, code: number): Promise<any> {
@@ -100,7 +102,7 @@ class Mailer {
 						circles.
 					</footer>
 				</body>
-			</html>`
+			</html>`,
 		});
 	}
 }
