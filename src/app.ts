@@ -42,17 +42,19 @@ app.use(helmet()); // 보안 미들웨어
 app.use(compression()); // 데이터 압축 미들웨어
 app.use(PassportJWTAuth.getInitialize()); // Passport 기본 세팅 미들웨어
 
+app.use(
+	history()
+);
 app.use(express.static("public")); // public 폴더의 파일을 제공함
 app.use(express.urlencoded({ limit: "20mb" })); // urlencode 지원
 app.use(express.json({ limit: "20mb" })); // json 지원
-
-app.use(history());
 
 app.get("/page", (req, res) => {
 	res.sendfile("public/page.html");
 }); // TEST CODE
 
 app.use(Router); // 라우터 연결
+
 app.use(SendRule.autoErrorHandler()); // 에러 핸들링
 
 SocketIOManager.start(server);
