@@ -44,7 +44,7 @@ class Mailer {
 				</head>
 				<body>
 					<header style="display:-webkit-flex;display:-ms-flexbox;display:flex;justify-content:flex-start;align-items:center;">
-						<a href="https://circlesapp.kr" style="margin-right:4px"><img src="https://circlesapp.kr/logo_64.png" alt="cirlces." title="circles." width="40px" height="40px"/></a>
+						<a href="https://circlesback.herokuapp.com" style="margin-right:4px"><img src="https://circlesback.herokuapp.com/logo_64.png" alt="cirlces." title="circles." width="40px" height="40px"/></a>
 						<span style="font-family:'AvenirBlack','Trebuchet MS',Helvetica,sans-serif;font-size:30px;">
 							circles.
 						</span>
@@ -57,7 +57,7 @@ class Mailer {
 							circles. 계정 만들기를 계속하려면 아래 버튼을 클릭하십시오.<br />
 							본인이 요청하지 않았다면, 이 메일을 무시하십시오.
 						</p>
-						<a href="https://circlesapp.kr/register?token=${code}&email=${email}" target="_blank" style="padding:6px 20px;color:white;font-size:22px;font-family:'NanumSquare',sans-serif;text-decoration:none;border:none;border-radius:5px;background:#568cff;box-shadow:0 2px 5px rgba(0,0,0,0.4)">계정 만들기</a>
+						<a href="https://circlesback.herokuapp.com/register?token=${code}&email=${email}" target="_blank" style="padding:6px 20px;color:white;font-size:22px;font-family:'NanumSquare',sans-serif;text-decoration:none;border:none;border-radius:5px;background:#568cff;box-shadow:0 2px 5px rgba(0,0,0,0.4)">계정 만들기</a>
 					</div>
 					<footer style="text-align:center;font-family:'AvenirBlack','Trebuchet MS',Helvetica,sans-serif;font-size:20px;color:#757575;">
 						circles.
@@ -83,7 +83,7 @@ class Mailer {
 				</head>
 				<body>
 					<header style="display:-webkit-flex;display:-ms-flexbox;display:flex;justify-content:flex-start;align-items:center;">
-						<a href="https://circlesapp.kr" style="margin-right:4px"><img src="https://circlesapp.kr/logo_64.png" alt="cirlces." title="circles." width="40px" height="40px"/></a>
+						<a href="https://circlesback.herokuapp.com" style="margin-right:4px"><img src="https://circlesback.herokuapp.com/logo_64.png" alt="cirlces." title="circles." width="40px" height="40px"/></a>
 						<span style="font-family:'AvenirBlack','Trebuchet MS',Helvetica,sans-serif;font-size:30px;">
 							circles.
 						</span>
@@ -96,7 +96,7 @@ class Mailer {
 							circles. 비밀번호를 재설정하려면 아래 버튼을 클릭하십시오.<br />
 							본인이 요청하지 않았다면, 이 메일을 무시하십시오.
 						</p>
-						<a href="https://circlesapp.kr/passwordchange?token=${code}&email=${email}" target="_blank" style="padding:6px 20px;color:white;font-size:22px;font-family:'NanumSquare',sans-serif;text-decoration:none;border:none;border-radius:5px;background:#568cff;box-shadow:0 2px 5px rgba(0,0,0,0.4)">비밀번호 재설정</a>
+						<a href="https://circlesback.herokuapp.com/passwordchange?token=${code}&email=${email}" target="_blank" style="padding:6px 20px;color:white;font-size:22px;font-family:'NanumSquare',sans-serif;text-decoration:none;border:none;border-radius:5px;background:#568cff;box-shadow:0 2px 5px rgba(0,0,0,0.4)">비밀번호 재설정</a>
 					</div>
 					<footer style="text-align:center;font-family:'AvenirBlack','Trebuchet MS',Helvetica,sans-serif;font-size:20px;color:#757575;">
 						circles.
