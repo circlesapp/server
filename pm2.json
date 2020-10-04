@@ -1,7 +1,7 @@
 {
 	"apps": [
 		{
-			"name": "NEM_TYPESCRIPT",
+			"name": "circles",
 			"script": "./dist/app.js",
 			"autorestart": true,
 			"watch": false,

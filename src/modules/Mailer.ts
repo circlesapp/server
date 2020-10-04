@@ -1,14 +1,13 @@
 import * as Nodemailer from "nodemailer";
 import * as GoogleAuth from "google-auth-library";
-import secret from "../../keys/mail";
 import Logger from "./Logger";
 
 class Mailer {
   transporter: Nodemailer.Transporter;
   constructor() {
-    const oauth2Client = new GoogleAuth.OAuth2Client(secret.client_id, secret.client_secret, "https://developers.google.com/oauthplayground");
+    const oauth2Client = new GoogleAuth.OAuth2Client(process.env.MAIL_CLIENT_ID, process.env.MAIL_CLIENT_SECRET, "https://developers.google.com/oauthplayground");
     oauth2Client.setCredentials({
-      refresh_token: secret.refresh_token,
+      refresh_token: process.env.MAIL_REFRESH_TOKEN,
     });
 
     this.transporter = Nodemailer.createTransport({
@@ -18,9 +17,9 @@ class Mailer {
       auth: {
         type: "OAuth2",
         user: "admin@hyunwoo.kim",
-        clientId: secret.client_id,
-        clientSecret: secret.client_secret,
-        refreshToken: secret.refresh_token,
+        clientId: process.env.MAIL_CLIENT_ID,
+        clientSecret: process.env.MAIL_CLIENT_SECRET,
+        refreshToken: process.env.MAIL_REFRESH_TOKEN,
         accessToken: oauth2Client.getAccessToken(),
       },
     } as Nodemailer.TransportOptions);
