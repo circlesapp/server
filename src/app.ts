@@ -3,8 +3,9 @@ import * as cors from "cors";
 import * as helmet from "helmet";
 import * as compression from "compression";
 import * as morgan from "morgan";
-import { readFileSync } from "fs";
-import * as https from "https";
+// import { readFileSync } from "fs";
+// import * as https from "https";
+import * as http from "http";
 
 import "dotenv/config";
 
@@ -43,15 +44,17 @@ app.use(express.static("public")); // public 폴더의 파일을 제공함
 app.use(express.urlencoded({ limit: "20mb" })); // urlencode 지원
 app.use(express.json({ limit: "20mb" })); // json 지원
 
-app.get("/page", (req, res) => {
-  res.sendfile("public/page.html");
-}); // TEST CODE
+// app.get("/page", (req, res) => {
+//   res.sendfile("public/page.html");
+// }); // TEST CODE
 
 app.use(Router); // 라우터 연결
 app.use(SendRule.autoErrorHandler()); // 에러 핸들링
 
 // SocketIOManager.start(server);
-SocketIOManager.start(app);
+
+const server = http.createServer(app);
+SocketIOManager.start(server);
 
 app.listen(process.env.PORT || 3000, () => {
   // 서버가 열렸을 시 콜백
