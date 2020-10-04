@@ -16,19 +16,19 @@ import SocketIOManager from "./routers/socket.index";
 import PassportJWTAuth from "./modules/PassportJWT-Auth";
 
 const app: express.Application = express(); // 서버
-const options = {
-	// SSL 인증서
-	key: readFileSync("./ssl/key.pem"),
-	cert: readFileSync("./ssl/cert.pem")
-};
+// const options = {
+// 	// SSL 인증서
+// 	key: readFileSync("./ssl/key.pem"),
+// 	cert: readFileSync("./ssl/cert.pem")
+// };
 
-const server = https.createServer(options, app);
+// const server = https.createServer(options, app);
 
-server.listen(process.env.PORT || 3000, () => {
-	// HTTPS
-	Log.c("SERVER OPEN");
-	Log.c(`PORT : ${process.env.PORT || 3000}`);
-});
+// server.listen(process.env.PORT || 3000, () => {
+// 	// HTTPS
+// 	Log.c("SERVER OPEN");
+// 	Log.c(`PORT : ${process.env.PORT || 3000}`);
+// });
 
 DB.init(); // DB 세팅
 
@@ -44,18 +44,19 @@ app.use(express.urlencoded({ limit: "20mb" })); // urlencode 지원
 app.use(express.json({ limit: "20mb" })); // json 지원
 
 app.get("/page", (req, res) => {
-	res.sendfile("public/page.html");
+  res.sendfile("public/page.html");
 }); // TEST CODE
 
 app.use(Router); // 라우터 연결
 app.use(SendRule.autoErrorHandler()); // 에러 핸들링
 
-SocketIOManager.start(server);
+// SocketIOManager.start(server);
+SocketIOManager.start(app);
 
-// app.listen(process.env.PORT || 3000, () => {
-// 	// 서버가 열렸을 시 콜백
-// 	Log.c("SERVER OPEN");
-// 	Log.c(`PORT : ${process.env.PORT || 3000}`);
-// });
+app.listen(process.env.PORT || 3000, () => {
+  // 서버가 열렸을 시 콜백
+  Log.c("SERVER OPEN");
+  Log.c(`PORT : ${process.env.PORT || 3000}`);
+});
 
 export default app;
