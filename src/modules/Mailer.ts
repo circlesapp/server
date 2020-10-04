@@ -4,33 +4,33 @@ import secret from "../../keys/mail";
 import Logger from "./Logger";
 
 class Mailer {
-	transporter: Nodemailer.Transporter;
-	constructor() {
-		const oauth2Client = new GoogleAuth.OAuth2Client(secret.client_id, secret.client_secret, "https://developers.google.com/oauthplayground");
-		oauth2Client.setCredentials({
-			refresh_token: secret.refresh_token
-		});
+  transporter: Nodemailer.Transporter;
+  constructor() {
+    const oauth2Client = new GoogleAuth.OAuth2Client(secret.client_id, secret.client_secret, "https://developers.google.com/oauthplayground");
+    oauth2Client.setCredentials({
+      refresh_token: secret.refresh_token,
+    });
 
-		this.transporter = Nodemailer.createTransport({
-			host: "smtp.gmail.com",
-			port: 587,
-			secure: false,
-			auth: {
-				type: "OAuth2",
-				user: "admin@hyunwoo.kim",
-				clientId: secret.client_id,
-				clientSecret: secret.client_secret,
-				refreshToken: secret.refresh_token,
-				accessToken: oauth2Client.getAccessToken()
-			}
-		} as Nodemailer.TransportOptions);
-	}
-	sendRegister(email: string, code: number): Promise<any> {
-		return this.transporter.sendMail({
-			from: "admin@hyunwoo.kim",
-			to: email,
-			subject: "circles. 계정 만들기",
-			html: `<!DOCTYPE html>
+    this.transporter = Nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 587,
+      secure: false,
+      auth: {
+        type: "OAuth2",
+        user: "admin@hyunwoo.kim",
+        clientId: secret.client_id,
+        clientSecret: secret.client_secret,
+        refreshToken: secret.refresh_token,
+        accessToken: oauth2Client.getAccessToken(),
+      },
+    } as Nodemailer.TransportOptions);
+  }
+  sendRegister(email: string, code: number): Promise<any> {
+    return this.transporter.sendMail({
+      from: "admin@hyunwoo.kim",
+      to: email,
+      subject: "circles. 계정 만들기",
+      html: `<!DOCTYPE html>
 			<html style="display:-webkit-flex;display:-ms-flexbox;display:flex;justify-content:center;width:100vw;color:#333;">
 				<head>
 					<meta charset="UTF-8" />
@@ -42,7 +42,7 @@ class Mailer {
 				</head>
 				<body>
 					<header style="display:-webkit-flex;display:-ms-flexbox;display:flex;justify-content:flex-start;align-items:center;">
-						<a href="https://circlesapp.kr" style="margin-right:4px"><img src="https://circlesapp.kr/logo_64.png" alt="cirlces." title="circles." width="40px" height="40px"/></a>
+						<a href="https://circles.hyunwoo.dev" style="margin-right:4px"><img src="https://circles.hyunwoo.dev/logo_64.png" alt="cirlces." title="circles." width="40px" height="40px"/></a>
 						<span style="font-family:'AvenirBlack','Trebuchet MS',Helvetica,sans-serif;font-size:30px;">
 							circles.
 						</span>
@@ -55,21 +55,21 @@ class Mailer {
 							circles. 계정 만들기를 계속하려면 아래 버튼을 클릭하십시오.<br />
 							본인이 요청하지 않았다면, 이 메일을 무시하십시오.
 						</p>
-						<a href="https://circlesapp.kr/register?token=${code}&email=${email}" target="_blank" style="padding:6px 20px;color:white;font-size:22px;font-family:'NanumSquare',sans-serif;text-decoration:none;border:none;border-radius:5px;background:#568cff;box-shadow:0 2px 5px rgba(0,0,0,0.4)">계정 만들기</a>
+						<a href="https://circles.hyunwoo.dev/register?token=${code}&email=${email}" target="_blank" style="padding:6px 20px;color:white;font-size:22px;font-family:'NanumSquare',sans-serif;text-decoration:none;border:none;border-radius:5px;background:#568cff;box-shadow:0 2px 5px rgba(0,0,0,0.4)">계정 만들기</a>
 					</div>
 					<footer style="text-align:center;font-family:'AvenirBlack','Trebuchet MS',Helvetica,sans-serif;font-size:20px;color:#757575;">
 						circles.
 					</footer>
 				</body>
-			</html>`
-		});
-	}
-	sendChangePasswordCode(email: string, code: number): Promise<any> {
-		return this.transporter.sendMail({
-			from: "admin@hyunwoo.kim",
-			to: email,
-			subject: "circles. 비밀번호 재설정",
-			html: `<!DOCTYPE html>
+			</html>`,
+    });
+  }
+  sendChangePasswordCode(email: string, code: number): Promise<any> {
+    return this.transporter.sendMail({
+      from: "admin@hyunwoo.kim",
+      to: email,
+      subject: "circles. 비밀번호 재설정",
+      html: `<!DOCTYPE html>
 			<html style="display:-webkit-flex;display:-ms-flexbox;display:flex;justify-content:center;width:100vw;color:#333;">
 				<head>
 					<meta charset="UTF-8" />
@@ -81,7 +81,7 @@ class Mailer {
 				</head>
 				<body>
 					<header style="display:-webkit-flex;display:-ms-flexbox;display:flex;justify-content:flex-start;align-items:center;">
-						<a href="https://circlesapp.kr" style="margin-right:4px"><img src="https://circlesapp.kr/logo_64.png" alt="cirlces." title="circles." width="40px" height="40px"/></a>
+						<a href="https://circles.hyunwoo.dev" style="margin-right:4px"><img src="https://circles.hyunwoo.dev/logo_64.png" alt="cirlces." title="circles." width="40px" height="40px"/></a>
 						<span style="font-family:'AvenirBlack','Trebuchet MS',Helvetica,sans-serif;font-size:30px;">
 							circles.
 						</span>
@@ -94,15 +94,15 @@ class Mailer {
 							circles. 비밀번호를 재설정하려면 아래 버튼을 클릭하십시오.<br />
 							본인이 요청하지 않았다면, 이 메일을 무시하십시오.
 						</p>
-						<a href="https://circlesapp.kr/passwordchange?token=${code}&email=${email}" target="_blank" style="padding:6px 20px;color:white;font-size:22px;font-family:'NanumSquare',sans-serif;text-decoration:none;border:none;border-radius:5px;background:#568cff;box-shadow:0 2px 5px rgba(0,0,0,0.4)">비밀번호 재설정</a>
+						<a href="https://circles.hyunwoo.dev/passwordchange?token=${code}&email=${email}" target="_blank" style="padding:6px 20px;color:white;font-size:22px;font-family:'NanumSquare',sans-serif;text-decoration:none;border:none;border-radius:5px;background:#568cff;box-shadow:0 2px 5px rgba(0,0,0,0.4)">비밀번호 재설정</a>
 					</div>
 					<footer style="text-align:center;font-family:'AvenirBlack','Trebuchet MS',Helvetica,sans-serif;font-size:20px;color:#757575;">
 						circles.
 					</footer>
 				</body>
-			</html>`
-		});
-	}
+			</html>`,
+    });
+  }
 }
 
 export default new Mailer();
