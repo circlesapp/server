@@ -1,11 +1,12 @@
 {
-	"name": "nem_typescript",
+	"name": "circles-server",
 	"version": "1.0.0",
 	"description": "",
 	"main": "./src/app.ts",
 	"scripts": {
 		"test": "mocha --timeout 10000 -r ts-node/register 'src/**/*.test.ts'",
-		"start": "npm run build && pm2 start ./pm2.json",
+		"start": "pm2 start ./pm2.json",
+		"start:node": "node dist/app",
 		"stop": "pm2 delete ./pm2.json",
 		"build": "webpack --config webpack.config.js",
 		"serve": "nodemon ../nodemon.json",
