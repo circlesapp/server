@@ -35,7 +35,10 @@ DB.init(); // DB 세팅
 
 app.set("trust proxy", "loopback"); // 프록시 설정 배포 시 ON
 app.use(morgan("dev")); // 개발용 로그 미들웨어
-app.use(cors()); // CORS 설정 미들웨어
+app.use(cors({
+  origin: process.env.ORIGIN ?? 'https://circles.hyunwoo.dev',
+  credentials: true
+})); // CORS 설정 미들웨어
 app.use(helmet()); // 보안 미들웨어
 app.use(compression()); // 데이터 압축 미들웨어
 app.use(PassportJWTAuth.getInitialize()); // Passport 기본 세팅 미들웨어
