@@ -32,7 +32,7 @@
 		"@types/supertest": "^2.0.8",
 		"@types/web-push": "^3.3.0",
 		"chai": "^4.2.0",
-		"mocha": "^6.2.2",
+		"mocha": "^6.2.3",
 		"nodemon": "^1.19.4",
 		"source-map-support": "^0.5.16",
 		"supertest": "^4.0.2",
@@ -59,7 +59,7 @@
 		"passport": "^0.4.1",
 		"passport-jwt": "^4.0.0",
 		"path": "^0.12.7",
-		"pm2": "^3.5.2",
+		"pm2": "^5.2.2",
 		"socket.io": "^2.4.0",
 		"web-push": "^3.4.3",
 		"webpack": "^4.41.4"
